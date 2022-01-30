@@ -1,0 +1,99 @@
+{% extends 'base2.html' %}
+
+
+
+{% block sidebar %}
+
+{% endblock %}
+
+ {% block content %}
+<br/>
+
+
+<div class="container">    
+<p align="center">{{ titulo_pagina }}</p>
+<p align="center">{{ usuario }}</p>
+<p align="center">tramitacoes</p>
+
+   <form enctype="multipart/form-data" action="{% url 'app01:cadastro_tramitacoes' %}" method="post">{%csrf_token%}
+
+   {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+<div class="row">   
+
+<div class="form-group">
+      
+    
+    <div class="col">
+    <label for="id_grupo" class="col-form-label">Operação</label>
+    <select name="operacao"  id="id_operacao" class="form-control">
+      {% for id, name in form.operacao.field.widget.choices %}
+      <option value="{{ id }}"  >{{ name }}</option>
+      {% endfor %}
+    </select>   
+    </div>
+    
+    <div class="col">
+    <label for="id_tramitacao" class="col-form-label">Tramitação</label>
+    <select name="tramitacao"  id="id_tramitacao" class="form-control">
+      {% for id, name in form.tramitacao.field.widget.choices %}
+      <option value="{{ id }}"  >{{ name }}</option>
+      {% endfor %}
+    </select> 
+    </div>    
+    
+</div>    
+</div>  
+  
+<div class="row">
+<div class="form-group">  
+  <div class="col">
+  
+    <div class="fileUpload btn btn-outline-secondary ">
+    <label for="upload" class="col-form-label">Arquivo</label>
+      <input type="file" class="upload" name="filename" />
+    </div>
+  </div>
+  </div>
+</div>  
+
+   
+
+    <p><span style="display:none"><input type="submit" id="submit" value="Entrar 2" ></span></p>
+    <p>
+    <button class="btn btn-success" id="bt_submit" onclick="fnSubmit();" >Executar</button>
+    </p>
+    <div id="msgDiv" style="display:none">Aguarde ja estamos processando!!</div>
+<script>
+function fnSubmit(){
+  document.getElementById("bt_submit").disabled=true;
+  document.getElementById("msgDiv").style.display = "block";
+  document.getElementById("submit").click();
+
+}
+</script>
+<style>
+#msgDiv {
+  width: 550px;
+  height: 150px;
+  background-color: lightblue;
+  font-size: 24px;
+}
+
+</style>
+
+
+
+   </form>
+   <hr>
+</div>
+</div>
+</div>
+{% endblock %}
