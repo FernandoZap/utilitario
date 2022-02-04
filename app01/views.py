@@ -14,9 +14,10 @@ import os
 import json
 import mysql.connector
 import openpyxl
-
-
-
+import re
+from django.core.files import File
+import zipfile
+#from zipfile import ZipFile
 
 
 @login_required
@@ -85,5 +86,84 @@ def processUserInfo(request,userInfo):
     #print(f"User Type: {userInfo['type']}")
     print()
     return "Info received successfuly"
+
+
+
+
+
+@login_required
+def v001_folha_02(request):
+    #inclusaoDeUsuarios.inclusao()
+    sessao(request)
+    if (request.method == "POST" and request.FILES['filename']):
+        current_user = request.user.iduser
+        operacao=request.POST['operacao']
+        tramitacao=request.POST['tramitacao']
+        file=request.FILES['filename']
+
+        file1 = open(file, 'r')
+        for linha in file1:
+            res = re.search(r'^[0-9]{3}[\s]\([0-9]{2}\.[0-9]{2}\)[\s][A-Z]{3,4}', linha)
+            if res:
+                print ('setor' + ' - ' + linha[0:50])
+        file1.close()
+
+
+
+        return HttpResponseRedirect(reverse('app01:folha_01'))
+    else:
+        
+        titulo = 'Cadastro de Folha_01'
+        form = Folha_01Form()
+    return render(request, 'app01/folha_01.html',
+            {
+                'form':form,
+                'titulo_pagina': titulo,
+                'usuario':request.session['username']
+            }
+          )
+
+def lendozip(request):
+    if (request.method == "POST" and request.FILES['filename']):
+        current_user = request.user.iduser
+        operacao=request.POST['operacao']
+        tramitacao=request.POST['tramitacao']
+        file_zip=request.FILES['filename']
+
+
+        zip = zipfile.ZipFile(file_zip)
+
+        kk=0
+        for filename in zip.namelist():
+
+            #print (filename)  #imprime o nome dos arquivo txt que estão empacotados no arquivo zip
+            arquivo =  filename
+            file = zip.open(filename)
+            for line_no, line in enumerate(file,1):
+                line=line.decode('ISO-8859-1')
+                if re.search(r'FOLHA',line):
+                    print (line[0:10])
+                else:
+                    if re.search(r'021635',line):
+                        #021635 JOSE VALDI COUTINHO
+                        print (line[0:27])
+
+                kk+=1
+                if kk>20:
+                    break
+        return HttpResponseRedirect(reverse('app01:folha_01'))
+    else:
+        titulo = 'Cadastro de Folha_01'
+        form = Folha_01Form()
+    return render(request, 'app01/folha_01.html',
+            {
+                'form':form,
+                'titulo_pagina': titulo,
+            }
+          )
+
+
+
+
 
 
