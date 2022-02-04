@@ -45,7 +45,7 @@ def v001_folha_01(request):
             id_funcionario = str(sheet['B' + str(row)].value)
             id_provento = str(sheet['C' + str(row)].value)
             valor = str(sheet['D' + str(row)].value)
-            anomes=202111
+            anomes=202112
             row+=1
             p = Foha_01(anomes=anomes,id_setor=id_setor, id_funcionario=id_funcionario, \
                 id_provento=id_provento, valor=valor)
@@ -85,7 +85,5 @@ def processUserInfo(request,userInfo):
     #print(f"User Type: {userInfo['type']}")
     print()
     return "Info received successfuly"
-
-
 
 

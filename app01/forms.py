@@ -84,3 +84,4 @@ class Folha_01Form(ModelForm):
     class Meta:
         model = Foha_01
         fields = ('anomes', 'id_setor','id_funcionario','id_provento','valor')
+
