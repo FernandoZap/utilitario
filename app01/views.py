@@ -3,9 +3,9 @@ from django.views.generic import (ListView)
 from django.http import HttpResponse,HttpResponseRedirect
 from . import incluirTramitacao
 from django.urls import reverse
-from .forms import f001_Tramitacoes,Folha_01Form
+from .forms import f001_Tramitacoes,Folha_01Form,Leitura_Zip
 from django.contrib.auth.decorators import login_required
-from .models import Foha_01
+from .models import Foha_01,Departamento
 from accounts.models import User
 #from accounts.conexoes import connections
 import csv
@@ -122,13 +122,20 @@ def v001_folha_02(request):
                 'usuario':request.session['username']
             }
           )
-
+#001 (02.01) GABINETE DO PREFEITO
 def lendozip(request):
     if (request.method == "POST" and request.FILES['filename']):
         current_user = request.user.iduser
         operacao=request.POST['operacao']
-        tramitacao=request.POST['tramitacao']
         file_zip=request.FILES['filename']
+        id_municipio=1
+
+        depto=""
+        setor=""
+        funcionario=""
+        lista_depto=[]
+        lista_setor=[]
+        lista_funcionario=[]        
 
 
         zip = zipfile.ZipFile(file_zip)
@@ -138,32 +145,41 @@ def lendozip(request):
 
             #print (filename)  #imprime o nome dos arquivo txt que estão empacotados no arquivo zip
             arquivo =  filename
+            folha=''
+            funcionario=''
             file = zip.open(filename)
             for line_no, line in enumerate(file,1):
                 line=line.decode('ISO-8859-1')
-                if re.search(r'FOLHA',line):
-                    print (line[0:10])
-                else:
-                    if re.search(r'021635',line):
-                        #021635 JOSE VALDI COUTINHO
-                        print (line[0:27])
+
+                res = re.search(r'^[0-9]{3}[\s]\([0-9]{2}\.[0-9]{2}\)[\s][A-Z]{3,4}', line)
+                if res:
+                    lista_depto.append(line[0:50])
 
                 kk+=1
-                if kk>20:
-                    break
+                #if kk>10500:
+                    #break
+            set_depto=set(lista_depto)
+            for dep in set_depto:
+                id_depto=int(dep[0:3])
+                codigo=dep[5:10]
+                departamento=dep[-(len(dep)-12):]
+                Departamento.objects.create(id_depto=id_depto,id_municipio=id_municipio,codigo=codigo,departamento=departamento)
+
+
+                #print ('departamento: '+dep[0:3]+';'+dep[5:10]+';'+dep[-(len(dep)-12):])
+
         return HttpResponseRedirect(reverse('app01:folha_01'))
     else:
-        titulo = 'Cadastro de Folha_01'
-        form = Folha_01Form()
-    return render(request, 'app01/folha_01.html',
+        titulo = 'Cadastro de Folha Leitura Arquivo Zip'
+        form = Leitura_Zip()
+    return render(request, 'app01/lendozip.html',
             {
                 'form':form,
-                'titulo_pagina': titulo,
+                'titulo_pagina': titulo
             }
           )
 
-
-
-
-
-
+def departamentoList(request):
+    deptos = Departamento.objects.all().order_by('departamento')
+    titulo = 'Departamentos'
+    return render(request, 'app01/deptoList.html',{'departamentos':deptos,'titulo':titulo})

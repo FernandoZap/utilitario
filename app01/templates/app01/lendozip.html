@@ -13,9 +13,8 @@
 <div class="container">    
 <p align="center">{{ titulo_pagina }}</p>
 <p align="center">{{ usuario }}</p>
-<p align="center">tramitacoes</p>
 
-   <form enctype="multipart/form-data" action="{% url 'app01:folha_01' %}" method="post">{%csrf_token%}
+   <form enctype="multipart/form-data" action="{% url 'app01:lendozip' %}" method="post">{%csrf_token%}
 
    {% if messages %}
 <ul class="messages">
@@ -39,15 +38,6 @@
       {% endfor %}
     </select>   
     </div>
-    
-    <div class="col">
-    <label for="id_tramitacao" class="col-form-label">Tramitação</label>
-    <select name="tramitacao"  id="id_tramitacao" class="form-control">
-      {% for id, name in form.tramitacao.field.widget.choices %}
-      <option value="{{ id }}"  >{{ name }}</option>
-      {% endfor %}
-    </select> 
-    </div>    
     
 </div>    
 </div>  

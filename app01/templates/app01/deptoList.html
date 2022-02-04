@@ -1,0 +1,29 @@
+{% extends 'base2.html' %}
+
+
+
+{% block sidebar %}
+
+{% endblock %}
+
+{% block content %}
+<br/>
+
+
+<div class="container">    
+<p align="center">{{ titulo }}</p>
+<p align="center">{{ usuario }}</p>
+
+<ul>
+{% for departamento in departamentos %}
+<li>
+
+    {{ departamento.departamento }}
+
+</li>
+{% endfor%}
+</ul>  
+
+   
+</div>
+{% endblock %}
