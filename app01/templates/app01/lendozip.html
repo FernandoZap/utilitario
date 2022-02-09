@@ -1,20 +1,15 @@
 {% extends 'base2.html' %}
 
 
-
-{% block sidebar %}
-
-{% endblock %}
-
- {% block content %}
+{% block content %}
 <br/>
 
+<div class="container">
+<p align="center">{{ titulo }}</p>
 
-<div class="container">    
-<p align="center">{{ titulo_pagina }}</p>
-<p align="center">{{ usuario }}</p>
-
-   <form enctype="multipart/form-data" action="{% url 'app01:lendozip' %}" method="post">{%csrf_token%}
+    
+   <form enctype="multipart/form-data" action="{% url 'app01:lendozip' %}" method="post">
+    {%csrf_token%}
 
    {% if messages %}
 <ul class="messages">
@@ -24,24 +19,66 @@
 </ul>
 {% endif %}
 
-
+   
 <div class="row">   
 
 <div class="form-group">
       
     
     <div class="col">
-    <label for="id_grupo" class="col-form-label">Operação</label>
-    <select name="operacao"  id="id_operacao" class="form-control">
-      {% for id, name in form.operacao.field.widget.choices %}
-      <option value="{{ id }}"  >{{ name }}</option>
+    <label for="id_municipio" class="col-form-label">Municipio</label>
+    <select name="municipio"  id="id_municipio" class="form-control">
+      <option value=""></option>
+      {% for municipio in municipios %}
+      <option value="{{ municipio.id_municipio }}">{{ municipio.municipio }}</option>
       {% endfor %}
     </select>   
     </div>
-    
-</div>    
-</div>  
-  
+
+
+    <div class="col">
+    <label for="id_ano" class="col-form-label">Ano</label>
+    <select name="ano"  id="id_ano" class="form-control">
+      <option value=""></option>
+      <option value="2021" selected >2021</option>
+      <option value="2022">2022</option>
+      <option value="2023">2023</option>
+    </select>   
+
+    <label for="id_mes" class="col-form-label">Mes</label>
+    <select name="mes"  id="id_mes" class="form-control">
+      <option value=""></option>
+      <option value="01">Janeiro</option>
+      <option value="02">Fevereiro</option>
+      <option value="03">Marco</option>
+      <option value="04">Abril</option>
+      <option value="05">Maio</option>
+      <option value="06">JUnho</option>
+      <option value="07">Julho</option>
+      <option value="08">Agosto</option>
+      <option value="09">Setembro</option>
+      <option value="10">Outubro</option>
+      <option value="NOVEMBRO" selected >Novembro</option>
+      <option value="12">Dezembro</option>
+
+    </select>   
+
+    </div>
+
+
+
+    <div class="col">
+    <label for="id_tabela" class="col-form-label">Tabela</label>
+
+    <select name="tabela"  id="id_tabela" class="form-control">
+      <option value=""></option>
+      <option value="departamento">Departamento</option>
+      <option value="setor">Setor</option>
+      <option value="funcionario">Funcionario</option>
+      <option value="folha">Folha</option>
+    </select>   
+    </div>
+
 <div class="row">
 <div class="form-group">  
   <div class="col">
@@ -54,13 +91,27 @@
   </div>
 </div>  
 
-   
 
-    <p><span style="display:none"><input type="submit" id="submit" value="Entrar 2" ></span></p>
+    
+    
+</div>    
+</div>  
+  
+  <br><br>
+
+
+    <p><span style="display:none">
+    <input type="submit" id="submit" value="Entrar 2" >
+    </span></p>
+
+
     <p>
     <button class="btn btn-success" id="bt_submit" onclick="fnSubmit();" >Executar</button>
     </p>
-    <div id="msgDiv" style="display:none">Aguarde ja estamos processando!!</div>
+    <div id="msgDiv" style="display:none">Processo iniciado...</div>
+
+
+
 <script>
 function fnSubmit(){
   document.getElementById("bt_submit").disabled=true;
@@ -79,9 +130,17 @@ function fnSubmit(){
 
 </style>
 
-
-
    </form>
+
+
+   <ul>
+   {% for deps in departamentos %}
+
+   <li>{{ deps.departamento }}</li>
+
+   {% endfor %}
+   </ul>
+
    <hr>
 </div>
 </div>

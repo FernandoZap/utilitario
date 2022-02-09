@@ -13,9 +13,8 @@
 <div class="container">    
 <p align="center">{{ titulo_pagina }}</p>
 <p align="center">{{ usuario }}</p>
-<p align="center">tramitacoes</p>
 
-   <form enctype="multipart/form-data" action="" method="post">{%csrf_token%}
+   <form enctype="multipart/form-data" action="{% url 'app01:lendozipDepto' %}" method="post">{%csrf_token%}
 
    {% if messages %}
 <ul class="messages">
@@ -31,23 +30,17 @@
 <div class="form-group">
       
     
+
     <div class="col">
-    <label for="id_grupo" class="col-form-label">Operação</label>
-    <select name="operacao"  id="id_operacao" class="form-control">
-      {% for id, name in form.operacao.field.widget.choices %}
-      <option value="{{ id }}"  >{{ name }}</option>
+    <label for="id_municipio" class="col-form-label">Municipio</label>
+    <select name="municipio"  id="id_municipio" class="form-control">
+      {% for municipio in municipios %}
+      <option value="{{ municipio.id }}"  >{{ municipio.municipio }}</option>
       {% endfor %}
     </select>   
     </div>
-    
-    <div class="col">
-    <label for="id_tramitacao" class="col-form-label">Tramitação</label>
-    <select name="tramitacao"  id="id_tramitacao" class="form-control">
-      {% for id, name in form.tramitacao.field.widget.choices %}
-      <option value="{{ id }}"  >{{ name }}</option>
-      {% endfor %}
-    </select> 
-    </div>    
+
+
     
 </div>    
 </div>  

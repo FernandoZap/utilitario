@@ -35,12 +35,16 @@
         </li>
         <li><a href="#" class="arrow">2 Cadastro em massa</a>
             <ul>
-                        <li><a href="{% url 'app01:folha_01' %}">2.1 Folha</a></li>
-                        <li><a href="{% url 'app01:lendozip' %}">2.2 Leitura do Zip</a></li>
-                        <li><a href="{% url 'app01:deptoList' %}">2.3 Departamento</a></li>
-                        <li>
-                            <a href="#" >2.4 Inserir honorarios recebidos</a>
+                        <li><a href="#">2.1 Folha</a></li>
+                        <li><a href="{% url 'app01:lendozipDepto' %}">2.2 Leitura do Zip-Depto</a></li>
+                        <li><a href="{% url 'app01:lendozipSetor' %}">2.3 Leitura do Zip-Setor</a></li>
+<li><a href="{% url 'app01:lendozipFuncionario' %}">2.4 Leitura do Zip-Funcionario</a></li>
+
+
+                        <li><a href="{% url 'app01:deptoList' %}">2.5 Departamento</a></li>
                         </li>
+<li><a href="{% url 'app01:lendozip' %}">2.6 Processando Zip</a></li>
+                        </li>                        
 
 
             </ul>

@@ -1,0 +1,38 @@
+
+
+<table><tr><td>Funcionario</td><td>Departamento</td><td>Setor</td><td>Provento</td><td>Valor</td></tr>
+{% for s in data  %}
+	<tr>
+	<td>
+		{{ s.depatamento }}
+	</td>
+	<td>
+ 		{{ s.departamento }}
+	</td>
+	<td>
+ 		{{ s.setor }}
+	</td>
+	<td>
+ 		{{ s.setor }}
+	</td>
+	<td>
+ 		{{ s.setor }}
+	</td>
+	</tr>
+{% endfor %}
+</table>
+
+<hr>
+
+<ul>
+{% for s in data  %}
+{% ifchanged s.departamento  %}
+<li><h1>Departamento:{{ s.departamento }}</h1></li>
+{% endifchanged %}
+<li>
+	Setor: {{ s.setor }}
+</li>
+{% endfor %}
+</ul>
+
+

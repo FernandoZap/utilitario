@@ -4,7 +4,6 @@ from django.forms import ModelForm
 from django.forms.widgets import Select, Widget
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from .models import Foha_01,Departamento
 
 import datetime
 from . import choices,incluirTramitacao
@@ -51,7 +50,7 @@ class f001_Tramitacoes(forms.Form):
             #importarDecisoes3.tramitacao_alterarStatus(planilha,operacao,tramitacao,current_user)
             incluirTramitacao.incluir(planilha,operacao,tramitacao,current_user)
 
-
+'''
 class Folha_01Form(ModelForm):
     OPERACAO_CHOICES=(
         ('BRANCO',''),
@@ -98,6 +97,12 @@ class Leitura_Zip(forms.Form):
         max_length=18
         )    
 
+    municipio = forms.CharField(
+        label = 'Operacao',
+        widget=forms.Select(choices=choices.MUNICIPIOS),
+        max_length=18
+        )    
+
     documento = forms.FileField(label='Arquivo Zip')
 
     def clean_operacao(self):
@@ -105,3 +110,15 @@ class Leitura_Zip(forms.Form):
         if(operation=='BRANCO'):
             raise forms.ValidationError("Informe as operacao")
         return operation
+
+class ListagemDepartamento(forms.Form):
+    OPERACAO_CHOICES=(
+        ('BRANCO',''),
+        ('LER','Incluir departamento(s)'),
+    )
+    municipio = forms.CharField(
+        label = 'Tipo da tramitacao',
+        widget=forms.Select(choices=choices.MUNICIPIOS),
+        max_length=50
+        )
+'''

@@ -1,29 +1,88 @@
 {% extends 'base2.html' %}
 
 
-
-{% block sidebar %}
-
-{% endblock %}
-
 {% block content %}
 <br/>
 
-
-<div class="container">    
+<div class="container">
 <p align="center">{{ titulo }}</p>
-<p align="center">{{ usuario }}</p>
 
-<ul>
-{% for departamento in departamentos %}
-<li>
+    
+   <form action="{% url 'app01:deptoList' %}" method="post">{%csrf_token%}
 
-    {{ departamento.departamento }}
-
-</li>
-{% endfor%}
-</ul>  
+   {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 
    
+<div class="row">   
+
+<div class="form-group">
+      
+    
+    <div class="col">
+    <label for="id_municipio" class="col-form-label">Municipio</label>
+    <select name="municipio"  id="id_municipio" class="form-control">
+      {% for municipio in municipios %}
+      <option value="{{ municipio.id_municipio }}"  >{{ municipio.municipio }}</option>
+      {% endfor %}
+    </select>   
+    </div>
+    
+    
+</div>    
+</div>  
+  
+  <br><br>
+
+
+    <p><span style="display:none">
+    <input type="submit" id="submit" value="Entrar 2" >
+    </span></p>
+
+
+    <p>
+    <button class="btn btn-success" id="bt_submit" onclick="fnSubmit();" >Executar</button>
+    </p>
+    <div id="msgDiv" style="display:none">Processo iniciado...</div>
+
+
+
+<script>
+function fnSubmit(){
+  document.getElementById("bt_submit").disabled=true;
+  document.getElementById("msgDiv").style.display = "block";
+  document.getElementById("submit").click();
+
+}
+</script>
+<style>
+#msgDiv {
+  width: 550px;
+  height: 150px;
+  background-color: lightblue;
+  font-size: 24px;
+}
+
+</style>
+
+   </form>
+
+
+   <ul>
+   {% for deps in departamentos %}
+
+   <li>{{ deps.departamento }}</li>
+
+   {% endfor %}
+   </ul>
+
+   <hr>
+</div>
+</div>
 </div>
 {% endblock %}
