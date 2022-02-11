@@ -53,9 +53,9 @@ def lendozip_modelo1(request):
         tabela=request.POST['tabela']
         ano=request.POST['ano']
         mes=request.POST['mes']
-        #mes_extenso = funcoes_gerais.mesPorExtenso(mes)
-        #referencia='FOLHA REF:'+mes_extenso+'/'+ano
-        #anomes=ano+mes
+        mes_extenso = funcoes_gerais.mesPorExtenso(mes)
+        referencia='FOLHA REF:'+mes_extenso+'/'+ano
+        anomes=ano+mes
 
 
         #municipio = Municipio.objects.get(id_municipio=id_municipio)
