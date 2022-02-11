@@ -100,7 +100,8 @@ def lendozip_modelo1(request):
                             leituraZip.setor_modelo2(file_zip,id_municipio)
 
         '''
-        return HttpResponseRedirect(reverse('app01:lendozip'))
+        #return HttpResponseRedirect(reverse('app01:lendozip'))
+        return render(request, 'app01/teste.html')
     else:
         titulo = 'Inclusao de Deptos/Setores/Funcionarios'
         municipios = Municipio.objects.all().order_by('municipio')
