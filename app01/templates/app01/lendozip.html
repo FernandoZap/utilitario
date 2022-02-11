@@ -30,7 +30,7 @@
     <select name="municipio"  id="id_municipio" class="form-control">
       <option value=""></option>
       {% for municipio in municipios %}
-      <option value="{{ municipio.id_municipio }}">{{ municipio.municipio }}</option>
+        <option value="{{ municipio.id_municipio }}">{{ municipio.municipio }}</option>
       {% endfor %}
     </select>   
     </div>
@@ -58,7 +58,7 @@
       <option value="08">Agosto</option>
       <option value="09">Setembro</option>
       <option value="10">Outubro</option>
-      <option value="NOVEMBRO" selected >Novembro</option>
+      <option value="11" selected >Novembro</option>
       <option value="12">Dezembro</option>
 
     </select>   
@@ -74,6 +74,7 @@
       <option value=""></option>
       <option value="departamento">Departamento</option>
       <option value="setor">Setor</option>
+      <option value="cargo">Cargo</option>
       <option value="funcionario">Funcionario</option>
       <option value="folha">Folha</option>
     </select>   
