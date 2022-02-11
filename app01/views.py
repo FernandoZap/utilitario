@@ -41,13 +41,13 @@ def processUserInfo(request,userInfo):
     return "Info received successfuly"
 
 
-
+@login_required
 def lendozip_modelo1(request):
     #Departamento.xtruncate()
     #Setor.truncate()
     #Vinculo.truncate()
     if (request.method == "POST" and request.FILES['filename']):
-        current_user = request.user.iduser
+        #current_user = request.user.iduser
         file_zip=request.FILES['filename']
         id_municipio=int(request.POST['municipio'])
         tabela=request.POST['tabela']
