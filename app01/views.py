@@ -62,12 +62,12 @@ def lendozip_modelo1(request):
         modelo = municipio.modelo
         string_pesquisa = municipio.string_pesquisa
 
-        if leituraZip.valida_zip2(file_zip,string_pesquisa,referencia)==2:
+        if leituraZip.valida_zip2(file_zip,string_pesquisa,referencia)==1:
             print ('processando arquivo zip')
         else:
             print ('arquivo nao corresponde')
 
-        if leituraZip.valida_zip2(file_zip,string_pesquisa,referencia)==2:
+        if leituraZip.valida_zip2(file_zip,string_pesquisa,referencia)==1:
             if modelo==1:
                 if tabela=='departamento':
                     print ('processando departamento')
@@ -98,8 +98,8 @@ def lendozip_modelo1(request):
                         if tabela=='setor':
                             leituraZip.setor_modelo2(file_zip,id_municipio)
 
-        #return HttpResponseRedirect(reverse('app01:lendozip'))
-        return render(request, 'app01/teste.html')
+        return HttpResponseRedirect(reverse('app01:lendozip'))
+        #return render(request, 'app01/teste.html')
     else:
         titulo = 'Inclusao de Deptos/Setores/Funcionarios'
         municipios = Municipio.objects.all().order_by('municipio')
