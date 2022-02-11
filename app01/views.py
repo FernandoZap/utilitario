@@ -58,9 +58,9 @@ def lendozip_modelo1(request):
         anomes=ano+mes
 
 
-        #municipio = Municipio.objects.get(id_municipio=id_municipio)
-        #modelo = municipio.modelo
-        #string_pesquisa = municipio.string_pesquisa
+        municipio = Municipio.objects.get(id_municipio=id_municipio)
+        modelo = municipio.modelo
+        string_pesquisa = municipio.string_pesquisa
         '''
 
         if leituraZip.valida_zip2(file_zip,string_pesquisa,referencia)==2:
