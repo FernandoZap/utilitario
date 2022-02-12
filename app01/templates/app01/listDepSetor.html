@@ -1,3 +1,4 @@
+{% load app_extras %}
 {% extends 'base2.html' %}
 
 
@@ -82,6 +83,10 @@ function fnSubmit(){
       {% endfor %}
 
    </ul>
+   <h1>Valor liquido</h1>
+   <hr>
+   <h1>{% total_folha_mes: 76 2021 'V' %}</h1>
+   <hr>
 
    <hr>
 </div>
