@@ -5,7 +5,7 @@
 {% for s in data  %}
 
 {% ifchanged s.departamento  %}
-<li><h1>Departamento: ({{ s.id_departamento }}) {{ s.id_setor }}</h1></li>
+<li><h1>Departamento: ({{ s.id_departamento }}) - {{ s.departamento }} - {{ s.id_setor }}</h1></li>
 
 {% endifchanged %}
 
