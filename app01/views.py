@@ -268,9 +268,9 @@ def listDepSetor(request):
         cursor.execute(sql)
         #r = cursor.fetchall()
         r = dictfetchall(cursor)
-        print (r)
+        #print (r)
 
-        deptos = Departamento.objects.all()
+        #deptos = Departamento.objects.all()
     else:
         deptos = []
     municipios = Municipio.objects.all()
@@ -278,7 +278,7 @@ def listDepSetor(request):
     return render(request, 'app01/listDepSetor.html',
             {
                 'titulo': titulo,
-                'departamentos':deptos,
+                'departamentos':r,
                 'municipios':municipios
             }
           )
