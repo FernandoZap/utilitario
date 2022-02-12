@@ -367,6 +367,8 @@ def gravarFolha_modelo1(file_zip,id_municipio,anomes):
         #print (filename)  #imprime o nome dos arquivo txt que estão empacotados no arquivo zip
         file = zip.open(filename)
         for line_no, line in enumerate(file,1):
+            if line_no>700:
+                break
             line=line.decode('ISO-8859-1')
             if line_no>4:
                 if lin_cargo==line_no:
