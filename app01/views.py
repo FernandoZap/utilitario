@@ -5,7 +5,7 @@ from . import incluirTramitacao,leituraZip,funcoes_gerais
 from django.urls import reverse
 #from .forms import f001_Tramitacoes,Folha_01Form
 from django.contrib.auth.decorators import login_required
-from .models import Municipio,Departamento,Setor
+from .models import Municipio,Departamento,Setor,Folha
 from accounts.models import User
 #from accounts.conexoes import connections
 import csv
@@ -218,7 +218,7 @@ def dictfetchall(cursor):
     ]
 
 
-def setorList(request):
+def setorList1(request):
     cursor = connection.cursor()
 
     #sql = 'Select distinct f.codigo_funcionario,d.codigo,d.departamento,s.codigo,s.setor,c.cargo,f.tipo,f.valor from folha f, departamento d,setor s, cargo c  where f.id_departamento=d.id_departamento and f.id_setor=s.id_setor and f.id_cargo=c.id_cargo order by f.codigo_funcionario,f.tipo'
@@ -244,4 +244,11 @@ def setorList(request):
     #print (str(r[0][0])+';'+str(r[0][1])+';'+str(r[0][2])+';'+str(r[0][3]))
     
     return render (request, 'app01/output.html',{'data':r,'valor':r5})
+
+
+
+def setorList(request):
+    obj = Folha.objects.all()
+    
+    return render (request, 'app01/output.html',{'data':obj})
 

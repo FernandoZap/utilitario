@@ -1,9 +1,3 @@
-{% load app_extras %}
-
-Vantagens: {% total_folha_mes 76 202111 "V" %}
-Descontos: {% total_folha_mes 76 202111 "D" %}
-Resultado: {% total_folha_mes 76 202111 "R" %}
-
 
 
 <ul>
@@ -11,13 +5,13 @@ Resultado: {% total_folha_mes 76 202111 "R" %}
 {% for s in data  %}
 
 {% ifchanged s.departamento  %}
-<li><h1>Departamento: ({{ s.id_departamento }}) {{ s.departamento }} - {% total_departamento 76 202111 "R" s.id_departamento %}</h1></li>
+<li><h1>Departamento: ({{ s.id_departamento }}) {{ s.id_setor }}</h1></li>
 
 {% endifchanged %}
 
 
 <li>
-	({{ s.id_setor }}) Setor: {{ s.setor }} {% total_folha %} - {% total_setor 76 202111 "R" s.id_departamento s.id_setor %}
+	({{ s.id_setor }}) Setor: {{ s.id_setor }}
 </li>
 {% endfor %}
 </ul>
