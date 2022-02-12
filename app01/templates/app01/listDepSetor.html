@@ -75,10 +75,11 @@ function fnSubmit(){
 
    <ul>
    {% for deps in departamentos %}
-
-   <li>{{ deps.departamento }} - {{ deps.setor }}</li>
-
+{% ifchanged s.departamento  %}
+   <li><h1>{{ deps.departamento }}</h1></li>
+{% endifchanged %}
    {% endfor %}
+   <li>{{ deps.setor }}</li>
    </ul>
 
    <hr>
