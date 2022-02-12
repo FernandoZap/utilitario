@@ -8,5 +8,6 @@ urlpatterns = [
     path('lendozip', v1.lendozip_modelo1, name='lendozip'),
     path('deptoList', v1.departamentoList, name='deptoList'),
     path('setorList', v1.setorList, name='setorList'),
+    path('listDepSetor', v1.listDepSetor, name='listDepSetor'),
 
 ]

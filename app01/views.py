@@ -247,8 +247,34 @@ def setorList1(request):
 
 
 
-def setorList(request):
+def setorList(request,id_departamento):
     obj = Folha.objects.all()
     
     return render (request, 'app01/output.html',{'data':obj})
 
+
+
+
+def listDepSetor(request):
+    if (request.method == "POST"):
+        Id_municipio=request.POST['municipio']
+        municipio=Municipio,objects.get(id=id_municipio)
+
+        sql = "select * from f006_listDepSetor('"+municipio+"')"
+
+        cursor.execute(sql)
+        #r = cursor.fetchall()
+        r = dictfetchall(cursor)
+        print (r)
+
+        deptos = Departamento.objects.all()
+    else:
+        deptos = []
+
+    titulo = 'Lists dos Departamentos'
+    return render(request, 'app01/listDepSetor.html',
+            {
+                'titulo': titulo,
+                'departamentos':deptos,
+            }
+          )
