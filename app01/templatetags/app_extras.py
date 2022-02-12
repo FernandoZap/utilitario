@@ -15,7 +15,7 @@ def total_folha():
 @register.simple_tag
 def total_folha_mes(id_municipio,anomes,tipo):
 
-    cursor = connection.cursor()
+    #cursor = connection.cursor()
 
     sql = "select f007_somaFolha("+str(id_municipio)+","+str(anomes)+",'"+tipo+"')"
 
@@ -25,8 +25,8 @@ def total_folha_mes(id_municipio,anomes,tipo):
 
     #r1 =  (r0[0])[0]
 
-    cursor.close()
-    del cursor
+    #cursor.close()
+    #del cursor
 
 
     return 125555
