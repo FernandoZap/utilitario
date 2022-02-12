@@ -78,8 +78,9 @@ function fnSubmit(){
 {% ifchanged s.departamento  %}
    <li><h1>{{ deps.departamento }}</h1></li>
 {% endifchanged %}
-   {% endfor %}
    <li>{{ deps.setor }}</li>
+      {% endfor %}
+
    </ul>
 
    <hr>
