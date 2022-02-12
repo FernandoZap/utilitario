@@ -247,7 +247,7 @@ def setorList1(request):
 
 
 
-def setorList(request,id_departamento):
+def setorList(request):
     obj = Folha.objects.all()
     
     return render (request, 'app01/output.html',{'data':obj})

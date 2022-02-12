@@ -1,5 +1,10 @@
-{% load app_extras %}
 
-<p>{{ valor }}</p>
+<ul>
+{% for d in data %}
+
+<li>{{ d.tipo }} {{ d.valor }}</li>
+
+{% end for %}
+</ul>
+
 <hr>
-<h3>{% total_folha %}</h3>
