@@ -223,13 +223,13 @@ def setorList1(request):
 
     #sql = 'Select distinct f.codigo_funcionario,d.codigo,d.departamento,s.codigo,s.setor,c.cargo,f.tipo,f.valor from folha f, departamento d,setor s, cargo c  where f.id_departamento=d.id_departamento and f.id_setor=s.id_setor and f.id_cargo=c.id_cargo order by f.codigo_funcionario,f.tipo'
     #sql = 'select * from view_dep_setor'
-    sql = 'Call my_proc_IN2(76)'
+    #sql = 'Call my_proc_IN2(76)'
     sql2 = "SELECT f001_total_folha (76,202111,'R')"
 
 
-    cursor.execute(sql)
+    #cursor.execute(sql)
     #r = cursor.fetchall()
-    r = dictfetchall(cursor)
+    #r = dictfetchall(cursor)
 
     cursor.execute(sql2)
     r2 = cursor.fetchall()
@@ -243,7 +243,7 @@ def setorList1(request):
 
     #print (str(r[0][0])+';'+str(r[0][1])+';'+str(r[0][2])+';'+str(r[0][3]))
     
-    return render (request, 'app01/output.html',{'data':r,'valor':r5})
+    return render (request, 'app01/output.html',{'valor':r5})
 
 
 

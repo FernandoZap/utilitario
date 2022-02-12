@@ -1,19 +1,5 @@
+{% load app_extras %}
 
-
-<ul>
-
-{% for s in data  %}
-
-{% ifchanged s.departamento  %}
-<li><h1>Departamento: ({{ s.id_departamento }}) - {{ s.departamento }} - {{ s.id_setor }}</h1></li>
-
-{% endifchanged %}
-
-
-<li>
-	({{ s.id_setor }}) Setor: {{ s.id_setor }}
-</li>
-{% endfor %}
-</ul>
-
-
+<p>{{ valor }}</p>
+<hr>
+<h3>{% total_folha %}</h3>
