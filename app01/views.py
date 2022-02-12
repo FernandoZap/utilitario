@@ -256,25 +256,26 @@ def setorList(request,id_departamento):
 
 
 def listDepSetor(request):
+
     if (request.method == "POST"):
         id_municipio=request.POST['municipio']
         obj=Municipio.objects.get(id_municipio=id_municipio)
         municipio=obj.municipio
 
 
-        sql = "select * from f006_listDepSetor('"+municipio+"')"
-        cursor = connection.cursor()
-
-        cursor.execute(sql)
-        #r = cursor.fetchall()
-        r = dictfetchall(cursor)
-        #print (r)
-
-        #deptos = Departamento.objects.all()
     else:
-        deptos = []
+        municipio=''
     municipios = Municipio.objects.all()
     titulo = 'Lists dos Departamentos'
+
+    sql = "select * from f006_listDepSetor('"+municipio+"')"
+    cursor = connection.cursor()
+
+    cursor.execute(sql)
+    #r = cursor.fetchall()
+    r = dictfetchall(cursor)
+
+
     return render(request, 'app01/listDepSetor.html',
             {
                 'titulo': titulo,
