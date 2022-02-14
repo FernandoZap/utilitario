@@ -19,51 +19,27 @@
 
 <ul class="menuH decor1">
         <li><a href="{% url 'core:home'  %}">Inicio</a></li>
-        <li style="margin-left:70px;"><a class="arrow">1 Integração Rede Empresarial</a>
-            <ul>
-                                <li><a href="#">1.1 Andamentos (Pesquisa)</a></li>
-                                <li><a href="#">1.2 Consultar Status da Tramitacao</a></li>
-                                <li><a href="#">1.2 Historio Log Robo RE</a></li>
-                                <li><a href="#">1.3 Iniciar Conferencia HonConveniados</a></li>
-                                <li><a href="#">1.4 Fechar Conferencia HonConveniados</a></li>
-                                <li>
-                                    <a href="#">1.5 Elaborar Peças</a>
-                                </li>
+        <li style="margin-left:70px;"><a class="arrow">1 Integração</a>
 
-
-            </ul>
         </li>
-        <li><a href="#" class="arrow">2 Cadastro em massa</a>
+        <li><a href="#" class="arrow">2 Importar Dados via Zip</a>
             <ul>
-                        <li><a href="#">2.1 Folha</a></li>
 
-                        <li><a href="{% url 'app01:deptoList' %}">2.5 Departamento</a></li>
-                        </li>
-<li><a href="{% url 'app01:lendozip' %}">2.6 Processando Zip</a></li>
-                        </li>                        
-
+<li><a href="{% url 'app01:lendozip' %}">2.1 Atualizar Dados</a></li>
+<li><a href="{% url 'app01:gravarCSVFolha' %}">2.2 Gerar Folha em Excel</a></li>
 
             </ul>
         </li>
 
         <li><a href="#" class="arrow">3 Diversos</a>
             <ul>
-                        <li><a href="#">3.1 Dados Gerais do Processo</a></li>
-                        <li><a href="#">3.2 Amarracao</a></li>
-                        <li><a href="#">3.3 Relatório de Decisões</a></li>
-                        <li><a href="#">3.4 Base Ativa</a></li>
-                        </ul>
+            <li><a href="{% url 'app01:deptoList' %}">3.1 Listar Departamentos</a></li>
+            <li><a href="{% url 'app01:listFolhaResumo' %}">3.2 Listar Soma da Folha</a></li>            
+            </ul>
         </li>
 
 
         <li><a href="#" class="arrow">4 Layout's</a>
-            <ul>
-                  <li><a href="#">4.1 Incluir tramitação</a></li>
-                  <li><a href="#">4.2 Alterar Status tramitação</a></li>
-                  <li><a href="#">4.3 Reagendar tramitação</a></li>
-                  <li><a href="#">4.4 Excluir tramitação</a></li>
-                  <li><a href="#">4.4 Honorarios Periciais</a></li>
-            </ul>
         </li>
 
         
@@ -89,7 +65,7 @@
 <div class="content">
     {%  block content %} {% endblock %}
     <div class="footer">
-        Novo Utilitários Saj.
+        Utilitários WEB.
      </div>
   </div>
   <script src="http://yui.yahooapis.com/3.12.0/build/yui/yui-min.js"></script>

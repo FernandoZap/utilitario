@@ -2,19 +2,27 @@
 import os
 import sys
 import re
-from .models import Departamento,Setor,Cargo,Vinculo,ProvDesc,Folha
+from .models import Departamento,Setor,Cargo,Vinculo,ProvDesc,Funcionario,Folha
+from django.db import connection
 
 
-def searchDepartamento(id_municipio,departamento):
-    obj=Departamento.objects.filter(id_municipio=id_municipio).filter(departamento=departamento).first()
+def searchDepartamento(id_municipio,chave,tipo):
+    if tipo=='nome':
+        obj=Departamento.objects.filter(id_municipio=id_municipio).filter(departamento=chave).first()
+    else:
+        obj=Departamento.objects.filter(id_municipio=id_municipio).filter(codigo=chave).first()
+
     if obj is None:
         id_departamento=0
     else:
         id_departamento=obj.id_departamento
     return id_departamento
 
-def searchSetor(id_municipio,setor):
-    obj=Setor.objects.filter(id_municipio=id_municipio).filter(setor=setor).first()
+def searchSetor(id_municipio,chave,tipo):
+    if tipo=='nome':
+        obj=Setor.objects.filter(id_municipio=id_municipio).filter(setor=chave).first()
+    else:
+        obj=Setor.objects.filter(id_municipio=id_municipio).filter(codigo=chave).first()
     if obj is None:
         id_setor=0
     else:
@@ -67,6 +75,56 @@ def mesPorExtenso(mes):
         return 'FEVEREIRO'
     elif int(mes)==11:
         return 'NOVEMBRO'
+
+
+
+def gravarFuncionario_local(codigo,nome,id_dep,id_set,id_cargo,id_vinculo):
+    
+
+    cursor = connection.cursor()
+
+    cursor.execute("INSERT INTO tab_funcionario (codigo,nome,id_dep,id_setor,id_cargo,id_vinculo) values (%s,%s,%s,%s,%s,%s)", [codigo,nome,id_dep,id_set,id_cargo,id_vinculo])
+
+    cursor.close()
+    del cursor
+    connection.close()
+
+
+
+def gravarFuncionario(id_municipio,codigo,nome,id_dep,id_set,id_cargo,id_vinculo):
+    obj = Funcionario.objects.filter(id_municipio=id_municipio,codigo=codigo).first()
+    if obj is None:
+        Funcionario.objects.create(
+            id_departamento = id_dep,
+            id_setor = id_set,
+            id_cargo = id_cargo,
+            id_vinculo = id_vinculo,
+            id_municipio = id_municipio,
+            nome = nome,
+            codigo = codigo
+            )
+
+def proventosFuncionario(id_municipio,anomes,id_funcionario):
+    lista=[]
+    objs = ProvDesc.objects.filter(id_municipio=id_municipio,tipo='V').order_by('ordenacao1')
+    for obj in objs:
+        id_obj=obj.id_provdesc
+        obj_f=Folha.objects.filter(id_municipio=id_municipio,anomes=anomes,id_funcionario=id_funcionario,id_provento=id_obj).first()
+        if obj_f is not None:
+            valor=obj_f.valor
+        else:
+            valor=0
+        lista.append(str(valor))
+    return lista
+
+
+def cabecalhoFolha(id_municipio):
+    lista=['Departamento','Setor','Codigo','Nome','Cargo','Vinculo']
+    objs=ProvDesc.objects.filter(id_municipio=id_municipio,tipo='V').order_by('ordenacao1')
+    for obj in objs:
+        lista.append(obj.descricao)
+    return lista
+
 
 
 

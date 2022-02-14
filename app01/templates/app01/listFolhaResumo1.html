@@ -1,0 +1,207 @@
+{% extends 'base2.html' %}
+{% load app_extras %}
+{% load humanize %}
+
+{% block content %}
+<br/>
+
+<div class="container">
+<p align="center">{{ titulo }}</p>
+
+    
+   <form  action="{% url 'app01:listFolhaResumo' %}" method="post">
+    {%csrf_token%}
+
+   {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+   
+<div class="row">   
+
+<div class="form-group">
+      
+    
+    <div class="col">
+    <label for="id_municipio" class="col-form-label">Município</label>
+    <select name="municipio"  id="id_municipio" class="form-control">
+      <option value=""></option>
+      {% for municipio in municipios %}
+        <option value="{{ municipio.id_municipio }}">{{ municipio.municipio }}</option>
+      {% endfor %}
+    </select>   
+    </div>
+
+
+    <div class="col">
+    <label for="id_ano" class="col-form-label">Ano</label>
+    <select name="ano"  id="id_ano" class="form-control">
+      <option value=""></option>
+      <option value="2021" selected >2021</option>
+      <option value="2022">2022</option>
+      <option value="2023">2023</option>
+    </select>   
+
+    <label for="id_mes" class="col-form-label">Mes</label>
+    <select name="mes"  id="id_mes" class="form-control">
+      <option value=""></option>
+      <option value="01">Janeiro</option>
+      <option value="02">Fevereiro</option>
+      <option value="03">Marco</option>
+      <option value="04">Abril</option>
+      <option value="05">Maio</option>
+      <option value="06">JUnho</option>
+      <option value="07">Julho</option>
+      <option value="08">Agosto</option>
+      <option value="09">Setembro</option>
+      <option value="10">Outubro</option>
+      <option value="11" selected >Novembro</option>
+      <option value="12">Dezembro</option>
+    </select>   
+
+
+    <label for="id_opcao" class="col-form-label">Opção</label>
+    <select name="opcao"  id="id_opcao" class="form-control">
+      <option value=""></option>
+      <option value="01">Departamento/Setor</option>
+      <option value="02">Proventos/Descontos</option>
+    </select>   
+
+    </div>
+    
+</div>    
+</div>  
+  
+  <br><br>
+
+
+    <p><span style="display:none">
+    <input type="submit" id="submit" value="Entrar 2" >
+    </span></p>
+
+
+    <p>
+    <button class="btn btn-success" id="bt_submit" onclick="fnSubmit();" >Executar</button>
+    </p>
+    <div id="msgDiv" style="display:none">Processo iniciado...</div>
+
+
+
+<script>
+function fnSubmit(){
+  document.getElementById("bt_submit").disabled=true;
+  document.getElementById("msgDiv").style.display = "block";
+  document.getElementById("submit").click();
+
+}
+</script>
+<style>
+#msgDiv {
+  width: 550px;
+  height: 150px;
+  background-color: lightblue;
+  font-size: 24px;
+}
+.departamento {
+  font-weight: 300;
+  color: blue;
+}
+
+.aignRigth {
+  text-align: right;
+}
+
+.tabela {
+  width: 750px;
+}
+
+.destaque {
+  font-weight: 300;
+  text-align: center;
+}
+
+.tabelaSoma {
+  width: 400px;
+}
+
+
+</style>
+
+   </form>
+
+   {% if resumo_depsetor %}
+
+    <span class="destaque">Município de {{ municipio}}  Referência: {{ referencia }}</span>
+    <hr>
+
+   <table class="tabela"><tr><td>Departamento/Setor</td><td>Vantagens (R$)</td><td>Descontos (R$)</td><td>Liquido (R$)</td></tr>
+   {% for reg in resumo_depsetor %}
+   {% ifchanged reg.departamento %}
+   <tr class="departamento"><td>{{ reg.departamento }}</td><td class="aignRigth">{% total_departamento reg.id_municipio reg.anomes 'V' reg.id_departamento %}</td><td class="aignRigth">{% total_departamento reg.id_municipio reg.anomes 'D' reg.id_departamento %}</td><td class="aignRigth">{% total_departamento reg.id_municipio reg.anomes 'R' reg.id_departamento %}</td></tr>
+   {% endifchanged %}
+
+
+   <tr><td>{{ reg.setor }}</td><td class="aignRigth">{% total_setor reg.id_municipio reg.anomes 'V' reg.id_departamento reg.id_setor %}</td><td class="aignRigth">{% total_setor reg.id_municipio reg.anomes 'D' reg.id_departamento reg.id_setor %}</td><td class="aignRigth">{% total_setor reg.id_municipio reg.anomes 'R' reg.id_departamento reg.id_setor %}</td></tr>
+
+   {% endfor %} 
+
+   </table>
+
+   <hr>
+   <table class="tabelaSoma">
+    <tr><td>Total Vantagens</td><td class="aignRigth">{% total_folha_mes id_municipio anomes 'V' %}</td></tr>
+   <tr><td>Total Desontos</td><td class="aignRigth">{% total_folha_mes id_municipio anomes 'D' %}</td></tr>
+    <tr><td>Resultado</td><td class="aignRigth">{% total_folha_mes id_municipio anomes 'R' %}</td></tr>
+   </table>
+   <hr>
+
+   {% endif %}
+ 
+
+
+   {% if resumo_provento %}
+
+
+   <span class="destaque">Município de {{ municipio}}  Referência: {{ referencia }}</span>
+   <hr>
+
+   <table>
+    <tr><td>Codigo</td><td>Descricao</td><td>Provento(R$)</td><td>Desconto(R$)</td></tr>
+
+   {% for reg in resumo_provento %}
+
+   <tr>
+   <td>{{ reg.codigo }}</td><td>{{ reg.descricao}}</td><td class="aignRigth">{% formatMilhar reg.vantagem %}</td><td class="aignRigth">{% formatMilhar reg.desconto %}</td>
+   </tr>
+
+   {% if forloop.last%}
+     <tr>
+     <td colspan="2">Totais</td><td class="aignRigth">{% total_folha_mes id_municipio anomes 'V' %}</td><td class="aignRigth">{% total_folha_mes id_municipio anomes 'D' %}</td>
+     </tr>
+   {% endif %}
+
+   {% endfor %}
+
+ </table>
+
+<hr>
+<span class="destaque">Resultado Liquido: R$ {% total_folha_mes id_municipio anomes 'R' %}</span>
+
+<hr>
+
+
+
+
+   {% endif %}
+
+   
+ 
+
+
+   <hr>
+</div>
+{% endblock %}

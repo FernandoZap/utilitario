@@ -1,6 +1,8 @@
 from django import template
 from app01.models import Folha
 from django.db import connection
+from django.contrib.humanize.templatetags.humanize import intcomma
+
 
 register = template.Library()
 
@@ -17,7 +19,7 @@ def total_folha_mes(id_municipio,anomes,tipo):
 
     cursor = connection.cursor()
 
-    sql = "select f007_somaFolha("+str(id_municipio)+","+str(anomes)+",'"+tipo+"')"
+    sql = "select f001_total_folha("+str(id_municipio)+","+str(anomes)+",'"+tipo+"')"
 
     cursor.execute(sql)
     r0 = cursor.fetchall()
@@ -28,8 +30,11 @@ def total_folha_mes(id_municipio,anomes,tipo):
     cursor.close()
     del cursor
 
+    r1=currency(r1)
 
-    return r1
+    r = r1[0:len(r1)-3]+','+r1[-2:]
+
+    return r
 
 
 
@@ -42,15 +47,17 @@ def total_departamento(id_municipio,anomes,tipo,id_departamento):
 
     cursor.execute(sql)
     r0 = cursor.fetchall()
-    #r2 = dictfetchall(cursor)
 
     r1 =  (r0[0])[0]
 
     cursor.close()
     del cursor
 
+    r1=currency(r1)
+    r = r1[0:len(r1)-3]+','+r1[-2:]
 
-    return r1
+
+    return r
 
 
 @register.simple_tag
@@ -69,6 +76,23 @@ def total_setor(id_municipio,anomes,tipo,id_departamento,id_setor):
     cursor.close()
     del cursor
 
+    r1=currency(r1)
+    r = r1[0:len(r1)-3]+','+r1[-2:]
 
-    return r1
+    return r
+
+def currency(dollars):
+    dollars = round(float(dollars), 2)
+    return "%s%s" % (intcomma(int(dollars)), ("%0.2f" % dollars)[-3:])
+register.filter('currency', currency)
+
+
+@register.simple_tag
+def formatMilhar(valor):
+    r1=currency(valor)
+    r = r1[0:len(r1)-3]+','+r1[-2:]
+
+    return r
+
+
 

@@ -4,10 +4,11 @@ import sys
 import datetime
 import zipfile
 import re
-from .models import Departamento,Setor,Cargo,Vinculo,ProvDesc,Folha
+from .models import Departamento,Setor,Cargo,Vinculo,ProvDesc,Folha,Funcionario
 import csv
 from . import funcoes_gerais
-
+from django.db import connection
+from django.http import HttpResponse
 
 
 #gravarDepartamento_modelo1
@@ -168,22 +169,26 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
                             lin_vinculo=0
                             codigo=funcionario[0:6]
                             nome=funcionario[-53:]
-                            id_dep=funcoes_gerais.searchDepartamento(id_municipio,depto)
-                            id_set=funcoes_gerais.searchSetor(id_municipio,setor)
+                            id_dep=funcoes_gerais.searchDepartamento(id_municipio,depto,'codigo')
+                            id_set=funcoes_gerais.searchSetor(id_municipio,setor,'codigo')
+                            id_cargo=funcoes_gerais.searchCargo(id_municipio,cargo)
+                            id_vinculo=funcoes_gerais.searchCargo(id_municipio,vinculo)
 
 
 
 
-                            lista_proventos.append(montaProventos(file_zip,codigo,depto,setor,cargo,vinculo,line_no))
+                            #lista_proventos.append(montaProventos(file_zip,codigo,depto,setor,cargo,vinculo,line_no))
                             #lista_provdesc.append(montaProvDesc(file_zip,codigo,depto,setor,cargo,vinculo,line_no))
                             #print (codigo+';'+vinculo)
 
-                            #lista_funcionario.append(codigo+';'+nome.rstrip()+';'+depto.rstrip()+';'+setor.rstrip()+';'+cargo.rstrip()+';'+vinculo.rstrip())
+                            #lista_funcionario.append(codigo+';'+nome.rstrip()+';'+str(id_dep)+';'+str(id_set)+';'+cargo.rstrip()+';'+vinculo.rstrip())
+                            lista_funcionario.append(codigo+';'+nome.rstrip()+';'+str(id_dep)+';'+str(id_set)+';'+str(id_cargo)+';'+str(id_vinculo))
+                            funcoes_gerais.gravarFuncionario(id_municipio,codigo,nome,id_dep,id_set,id_cargo,id_vinculo)
 
 
             res = re.search(r'^[0-9]{3}[\s]\([0-9]{2}\.[0-9]{2}\)[\s][A-Z]{3,4}', line)
             if res:
-                depto=line[0:3]
+                depto=line[0:11]
             else:
                 if re.search(r'^[0-9]{3}[\s][A-Z]{3}', line):
                     setor=line[0:3]
@@ -195,7 +200,6 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
                         depto==''
                         setor==''
 
-        '''
         set_funcionario=set(lista_funcionario)
         for st in set_funcionario:
             dados=st.split(';')
@@ -204,8 +208,7 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
             id_setor=int(dados[3])
             cargo=(dados[4]).rstrip()
             vinculo=(dados[5]).rstrip()
-            #print ('0='+dados[0]+';'+'1='+dados[1]+';'+'2='+dados[2]+';'+'3='+dados[3]+';'+'4='+dados[4]+';'+'5='+dados[5])
-        '''
+            print ('0='+dados[0]+';'+'1='+dados[1]+';'+'2='+dados[2]+';'+'3='+dados[3]+';'+'4='+dados[4]+';'+'5='+dados[5])
     zip.close()
     '''
     # Listar os proventos e descontos
@@ -219,7 +222,6 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
         descricao5=subset3[-(len(subset3)-4):]
 
         retorno = searchProvDesc(id_municipio,tipo5,codigo5,descricao5)
-    '''
 
     with open('folha_novembro.csv', mode='w', newline='') as csv_file:
     
@@ -248,7 +250,7 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
                         #print(codigo+';'+prov['tipo']+';'+prov['codigo']+';'+prov['provento']+';'+prov['valor'])
                         writer.writerow({"Func":codigo, "Departamento":depto, "Setor":setor, "Id_cargo":id_cargo,"Cargo":cargo, "Id_vinculo": id_vinculo,"Vinculo":vinculo ,"Tipo": prov['tipo'], "Cod": prov['codigo'],'Provento':prov['provento'],'Valor':prov['valor']})
 
-
+    '''
 
 
 
@@ -383,8 +385,8 @@ def gravarFolha_modelo1(file_zip,id_municipio,anomes):
                             lin_vinculo=0
                             codigo=funcionario[0:6]
                             nome=funcionario[-53:]
-                            id_dep=funcoes_gerais.searchDepartamento(id_municipio,departamento)
-                            id_set=funcoes_gerais.searchSetor(id_municipio,setor)
+                            id_dep=funcoes_gerais.searchDepartamento(id_municipio,departamento,'nome')
+                            id_set=funcoes_gerais.searchSetor(id_municipio,setor,'nome')
                             if id_dep==0:
                                 print ('depto: '+departamento)
                             if id_set==0:
@@ -439,9 +441,12 @@ def gravarFolha_modelo1(file_zip,id_municipio,anomes):
                     valor = valor.replace(',','.')
                     valor = float(valor)
                     if len(codigo)==6:
-                        Folha.objects.create(id_municipio=id_municipio,anomes=202111,codigo_funcionario=codigo,\
-                            id_departamento=depto,id_setor=setor,id_cargo=id_cargo,id_vinculo=id_vinculo,\
-                            id_provento=id_provdesc,tipo=prov['tipo'],valor=valor)                    
+                        obj=Funcionario.objects.filter(id_municipio=id_municipio,codigo=codigo).first()
+                        if obj is not None:
+                            id_funcionario=obj.id_funcionario
+                            Folha.objects.create(id_municipio=id_municipio,anomes=202111,id_funcionario=id_funcionario,\
+                                id_departamento=depto,id_setor=setor,id_cargo=id_cargo,id_vinculo=id_vinculo,\
+                                id_provento=id_provdesc,tipo=prov['tipo'],valor=valor)                    
 
 
 def gravarDepartamento_modelo1(file_zip,id_municipio):
@@ -634,7 +639,42 @@ def pesquisa(linha):
 
 
 
+def folhacsv_modelo1(request, id_municipio,anomes):
 
+
+    response = HttpResponse(content_type='text/csv')
+
+    response['Content-Disposition'] = 'attachment; filename="processo.csv"'
+
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT v.id_departamento,d.departamento,p.codigo,p.descricao,SUM(vantagem) as vantagem, SUM(desconto) AS desconto FROM v003_proventos v,provdesc p,departamento d WHERE v.id_departamento=d.id_departamento AND  v.id_provento=p.id_provdesc AND v.id_municipio=%s AND v.anomes=%s  GROUP BY v.id_departamento,d.departamento,p.codigo,p.descricao ORDER BY d.departamento", [id_municipio,anomes])                        
+
+    row = cursor.fetchone() 
+
+    print ("id_municipio "+str(id_municipio)+ '  anomes '+anomes)
+    writer = csv.writer(response, delimiter=';')
+    response.write(u'\ufeff'.encode('utf8'))
+    writer.writerow((
+    'departamento',
+    'descricao'
+    ))
+
+    contador=0
+    while row and contador<25:
+        contador=contador+1
+
+        writer.writerow((
+        row[1],
+        row[3]
+        ))
+        row = cursor.fetchone() 
+    cursor.close()
+    del cursor
+    connection.close()
+                
+    return response
+                
 
 
 

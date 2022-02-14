@@ -5,9 +5,8 @@ from . import incluirTramitacao,leituraZip,funcoes_gerais
 from django.urls import reverse
 #from .forms import f001_Tramitacoes,Folha_01Form
 from django.contrib.auth.decorators import login_required
-from .models import Municipio,Departamento,Setor,Folha
+from .models import Municipio,Departamento,Setor
 from accounts.models import User
-#from accounts.conexoes import connections
 import csv
 import datetime
 import os
@@ -88,6 +87,10 @@ def lendozip_modelo1(request):
                                 if tabela=='funcionario':
                                     print ('processando funcionario')
                                     leituraZip.funcionario_modelo1(file_zip,id_municipio,anomes)
+                                else:
+                                    if tabela=='folha_csv':
+                                        leituraZip.folhacsv_modelo1(request,id_municipio,anomes)
+
 
 
             else:
@@ -248,7 +251,7 @@ def setorList1(request):
 
 
 def setorList(request):
-    obj = Folha.objects.all()
+    #obj = Folha.objects.all()
     
     return render (request, 'app01/output.html',{'data':obj})
 
@@ -283,3 +286,134 @@ def listDepSetor(request):
                 'municipios':municipios
             }
           )
+
+
+
+
+def listFolhaResumo(request):
+
+    opcao=''
+    query1=None
+    query2=None
+
+    if (request.method == "POST"):
+        id_municipio=request.POST['municipio']
+        ano=request.POST['ano']
+        mes=request.POST['mes']
+        opcao=request.POST['opcao']
+        obj=Municipio.objects.get(id_municipio=id_municipio)
+        municipio=obj.municipio
+
+        anomes = int(ano+mes)
+        referencia = mes+"/"+ano
+
+    else:
+        id_municipio=0
+        anomes=200001
+        municipio=''
+        referencia=''
+    titulo = 'Totais da Folha'
+
+    if opcao=='01':
+        sql = "SELECT * FROM v002_listfolharesumo WHERE id_municipio="+str(id_municipio)+" AND "+" anomes="+str(anomes)+" order by departamento,setor"
+            
+            
+
+
+    if opcao!='':
+        cursor = connection.cursor()
+        if opcao=='01':
+            cursor.execute(sql)    
+        else:
+            params=(76,202111)
+            cursor.execute("SELECT v.id_departamento,d.departamento,p.codigo,p.descricao,SUM(vantagem) as vantagem, SUM(desconto) AS desconto FROM v003_proventos v,provdesc p,departamento d WHERE v.id_departamento=d.id_departamento AND  v.id_provento=p.id_provdesc AND v.id_municipio=%s AND v.anomes=%s  GROUP BY v.id_departamento,d.departamento,p.codigo,p.descricao ORDER BY d.departamento", [id_municipio,anomes])    
+        if opcao=='01':
+            query1 = dictfetchall(cursor)
+        else:
+            query2 = dictfetchall(cursor)
+
+    municipios = Municipio.objects.all()
+
+
+    return render(request, 'app01/listFolhaResumo1.html',
+            {
+                'titulo': titulo,
+                'resumo_depsetor':query1,
+                'resumo_provento':query2,
+                'municipios':municipios,
+                'id_municipio':id_municipio,
+                'anomes':anomes,
+                'municipio':municipio,
+                'referencia':referencia
+            }
+          )
+
+
+
+
+def gravarCSVFolha(request):
+
+    if request.method=='POST':
+        id_municipio = request.POST['municipio']
+        ano=request.POST['ano']
+        mes=request.POST['mes']
+        anomes=int(ano+mes)
+
+    
+        response = HttpResponse(content_type='text/csv')
+
+
+
+        response['Content-Disposition'] = 'attachment; filename="folha_20210214.csv"'
+        if (1==1):
+            sql_command =   """
+            select * from v006_folha where id_municipio=%s and anomes=%s order by id_funcionario;
+                """
+
+        try:
+            db_cursor = connection.cursor()
+            db_cursor.execute(sql_command, (id_municipio,anomes,))
+
+            row = db_cursor.fetchone() 
+
+            cabecalho = funcoes_gerais.cabecalhoFolha(id_municipio)
+            #print (cabecalho)
+            writer = csv.writer(response, delimiter=';')
+            response.write(u'\ufeff'.encode('utf8'))
+            writer.writerow(cabecalho)
+
+            contador=0
+            while row and contador<17000:
+                contador=contador+1
+                id_funcionario=row[2]
+                itens=[]
+                lista=[]
+
+                lista = funcoes_gerais.proventosFuncionario(id_municipio,anomes,id_funcionario)
+                #print (lista)
+
+                itens = [row[3],row[4],row[5],row[6],row[7],row[8]]
+                for kk in range(0, len(lista)):
+                   itens.append(lista[kk])
+                   print (str(kk)+'. '+lista[kk])
+
+                writer.writerow(itens)
+                row = db_cursor.fetchone() 
+            db_cursor.close()
+            del db_cursor
+            connection.close()
+            
+        finally:
+            print ("Erro na inclusao")
+            
+        return response
+    else:
+        titulo = 'Dados Gerais do Pasta'
+        municipios=Municipio.objects.all()
+    return render(request, 'app01/gravarCSVFolha.html',
+        {
+            'titulo_pagina': titulo,
+            'municipios':municipios
+
+        }
+    )

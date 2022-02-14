@@ -9,5 +9,7 @@ urlpatterns = [
     path('deptoList', v1.departamentoList, name='deptoList'),
     path('setorList', v1.setorList, name='setorList'),
     path('listDepSetor', v1.listDepSetor, name='listDepSetor'),
+    path('listFolhaResumo', v1.listFolhaResumo, name='listFolhaResumo'),
+    path('gravarCSVFolha', v1.gravarCSVFolha, name='gravarCSVFolha'),
 
 ]

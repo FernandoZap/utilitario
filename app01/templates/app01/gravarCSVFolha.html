@@ -8,7 +8,7 @@
 <p align="center">{{ titulo }}</p>
 
     
-   <form enctype="multipart/form-data" action="{% url 'app01:lendozip' %}" method="post">
+   <form action="{% url 'app01:gravarCSVFolha' %}" method="post">
     {%csrf_token%}
 
    {% if messages %}
@@ -65,36 +65,6 @@
 
     </div>
 
-
-
-    <div class="col">
-    <label for="id_tabela" class="col-form-label">Tabela</label>
-
-    <select name="tabela"  id="id_tabela" class="form-control">
-      <option value=""></option>
-      <option value="departamento">Departamento</option>
-      <option value="setor">Setor</option>
-      <option value="cargo">Cargo</option>
-      <option value="funcionario">Funcionario</option>
-      <option value="folha">Folha</option>
-    </select>   
-    </div>
-
-<div class="row">
-<div class="form-group">  
-  <div class="col">
-  
-    <div class="fileUpload btn btn-outline-secondary ">
-    <label for="upload" class="col-form-label">Arquivo</label>
-      <input type="file" class="upload" name="filename" />
-    </div>
-  </div>
-  </div>
-</div>  
-
-
-    
-    
 </div>    
 </div>  
   
@@ -132,16 +102,6 @@ function fnSubmit(){
 </style>
 
    </form>
-
-
-   <ul>
-   {% for deps in departamentos %}
-
-   <li>{{ deps.departamento }}</li>
-
-   {% endfor %}
-   </ul>
-
    <hr>
 </div>
 </div>

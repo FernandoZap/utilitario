@@ -2,11 +2,12 @@ from __future__ import unicode_literals
 from django.db import connection
 from django.db import models
 
+
 class Folha(models.Model):
     id_folha = models.AutoField(primary_key=True)
     id_municipio = models.IntegerField()
     anomes = models.IntegerField()
-    codigo_funcionario = models.CharField(max_length=50)
+    id_funcionario = models.IntegerField()
     id_departamento = models.IntegerField()
     id_setor = models.IntegerField()
     id_cargo = models.IntegerField()
@@ -94,27 +95,35 @@ class Setor(models.Model):
         with connection.cursor() as cursor:
             cursor.execute('TRUNCATE TABLE {}'.format(cls._meta.db_table))        
 
-'''
+
 class Funcionario(models.Model):  
-    id_funcionario = models.IntegerField()
-    id_repartition = models.IntegerField()
-    id_section = models.IntegerField()
+    id_funcionario = models.AutoField(primary_key=True)
+    id_departamento = models.IntegerField()
+    id_setor = models.IntegerField()
     id_cargo = models.IntegerField(default=0)
     id_vinculo = models.IntegerField(default=0)
     id_municipio = models.IntegerField()
-    id_funcao = models.IntegerField(default=0) 
     nome = models.CharField(max_length=100)
+    codigo = models.CharField(max_length=20)
+    data_admissao = models.DateField(null=True)
     ativo = models.IntegerField(default=1)
 
     def __str__(self):
         return self.nome
+
+    class Meta:
+        db_table = 'funcionario'
+        constraints = [
+            models.UniqueConstraint(fields=['id_municipio', 'codigo'], name='funcionario unique codigo')
+        ]
+
 
     @classmethod
     def truncate(cls):
         with connection.cursor() as cursor:
             cursor.execute('TRUNCATE TABLE {}'.format(cls._meta.db_table))        
 
-'''
+
 
 class Cargo(models.Model):  
     id_cargo = models.AutoField(primary_key=True)
@@ -166,6 +175,7 @@ class ProvDesc(models.Model):
     tipo = models.CharField(max_length=1) 
     codigo = models.CharField(max_length=6) 
     descricao = models.CharField(max_length=100)
+    ordenacao1 = models.IntegerField(default=0)
 
     def __str__(self):
         return self.descricao
