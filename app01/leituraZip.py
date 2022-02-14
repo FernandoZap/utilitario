@@ -711,12 +711,12 @@ def gravarPovDesc_modelo1(file_zip,id_municipio,anomes):
                             lin_vinculo=0
                             codigo=funcionario[0:6]
                             nome=funcionario[-53:]
-                            id_dep=funcoes_gerais.searchDepartamento(id_municipio,departamento,'nome')
-                            id_set=funcoes_gerais.searchSetor(id_municipio,setor,'nome')
-                            if id_dep==0:
-                                print ('depto: '+departamento)
-                            if id_set==0:
-                                print ('setor: '+setor)
+                            id_dep=0 #funcoes_gerais.searchDepartamento(id_municipio,departamento,'nome')
+                            id_set=0 #funcoes_gerais.searchSetor(id_municipio,setor,'nome')
+                            #if id_dep==0:
+                                #print ('depto: '+departamento)
+                            #if id_set==0:
+                                #print ('setor: '+setor)
 
 
                             lista_proventos.append(montaProventos(file_zip,codigo,id_dep,id_set,cargo,vinculo,line_no))
@@ -747,12 +747,6 @@ def gravarPovDesc_modelo1(file_zip,id_municipio,anomes):
             setor = rel['setor']
             cargo = rel['cargo']
             vinculo = rel['vinculo']
-            id_cargo = funcoes_gerais.searchCargo(id_municipio,cargo)
-            if id_cargo==0:
-                lista_cargo.append(cargo)
-            id_vinculo = funcoes_gerais.searchVinculo(id_municipio,vinculo)
-            if id_vinculo==0:
-                lista_vinculo.append(vinculo)
 
             provents = rel['proventos']
             

@@ -11,5 +11,6 @@ urlpatterns = [
     path('listDepSetor', v1.listDepSetor, name='listDepSetor'),
     path('listFolhaResumo', v1.listFolhaResumo, name='listFolhaResumo'),
     path('gravarCSVFolha', v1.gravarCSVFolha, name='gravarCSVFolha'),
+    path('proventos', v1.acertaProventos, name='proventos'),
 
 ]

@@ -5,7 +5,7 @@ from . import incluirTramitacao,leituraZip,funcoes_gerais
 from django.urls import reverse
 #from .forms import f001_Tramitacoes,Folha_01Form
 from django.contrib.auth.decorators import login_required
-from .models import Municipio,Departamento,Setor
+from .models import Municipio,Departamento,Setor,ProvDesc
 from accounts.models import User
 import csv
 import datetime
@@ -85,7 +85,7 @@ def lendozip_modelo1(request):
                                 leituraZip.gravarFolha_modelo1(file_zip,id_municipio,anomes)
                             else:
                                 if tabela=='funcionario':
-                                    print ('processando funcionario')
+                                    #print ('processando funcionario')
                                     leituraZip.funcionario_modelo1(file_zip,id_municipio,anomes)
                                 else:
                                     if tabela=='folha_csv':
@@ -420,3 +420,44 @@ def gravarCSVFolha(request):
 
         }
     )
+
+
+
+def acertaProventos(request):
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='111',descricao='SUB. DO PREFEITO',ordenacao1=1)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='112',descricao='SUB. DO VICE-PREFEIT',ordenacao1=2)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='001',descricao='VENCIMENTO BASE',ordenacao1=3)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='058',descricao='GRATIFICACAO',ordenacao1=4)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='131',descricao='REPRESENTACAO',ordenacao1=5)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='190',descricao='SAL. FAMILIA F001',ordenacao1=6)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='230',descricao='ADC P/TEMP.SERV A008',ordenacao1=7)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='408',descricao='1/3 FERIAS',ordenacao1=8)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='014',descricao='ADIC.NOTURNO',ordenacao1=9 )
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='191',descricao='SALARIO FAMILIA',ordenacao1=10 )
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='033',descricao='PENSAO ALIMENTI',ordenacao1=11 )
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='136',descricao='GRAT. POLIVALENTE',ordenacao1=12)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='137',descricao='GRAT. EDUC. ESPECIAL',ordenacao1=13)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='068',descricao='VENCIMENTO BASE PROP',ordenacao1=14)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='022',descricao='SALARIO MATERNIDADE',ordenacao1=15 )
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='026',descricao='INSALUBRIDADE',ordenacao1=16)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='304',descricao='PRODUTIVIDADE',ordenacao1=17)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='129',descricao='GRAT.DE TITULARIDADE',ordenacao1=18)
+    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='069',descricao='GRAT. RISCO DE VIDA',ordenacao1=19)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='900',descricao='INSS 14.00%',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='910',descricao='I R R F 27.50%',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='502',descricao='CONT.SINDICAL 001.00%',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='560',descricao='FALTAS D001',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='595',descricao='EMPR.CONS.BRADESCO',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='600',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='601',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='596',descricao='EMPR.CONS.BRADESCO',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='561',descricao='PENSAO ALIMENTI',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='501',descricao='CONTRIBUICAO APROFI 001.0',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='603',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='602',descricao='SEGURO DE VIDA',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='604',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='598',descricao='EMPR.CONSIGNAVEL BRA',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='605',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='606',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
+    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='599',descricao='EMPR.CONSIGNAVEL BRA',ordenacao1=0)
+    return render("<h1>Proventos e Descontos concluidos</h1")    
