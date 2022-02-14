@@ -90,6 +90,9 @@ def lendozip_modelo1(request):
                                 else:
                                     if tabela=='folha_csv':
                                         leituraZip.folhacsv_modelo1(request,id_municipio,anomes)
+                                    else:
+                                        if tabela=='proventos':
+                                            leituraZip.gravarPovDesc_modelo1(file_zip,id_municipio,anomes)
 
 
 

@@ -119,17 +119,8 @@ def folha_modelo1(file_zip,id_municipio,anomes):
 
 
 
-def setor_modelo2(file):
-    pass
-
-
-def funcionario_modelo1(file_zip,id_municipio):
-    pass
-
-
-
-
 def funcionario_modelo1(file_zip,id_municipio,anomes):
+    # gravar os funcionarios
     depto=""
     setor=""
     lista_funcionario=[]
@@ -184,6 +175,7 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
                             #lista_funcionario.append(codigo+';'+nome.rstrip()+';'+str(id_dep)+';'+str(id_set)+';'+cargo.rstrip()+';'+vinculo.rstrip())
                             lista_funcionario.append(codigo+';'+nome.rstrip()+';'+str(id_dep)+';'+str(id_set)+';'+str(id_cargo)+';'+str(id_vinculo))
                             funcoes_gerais.gravarFuncionario(id_municipio,codigo,nome,id_dep,id_set,id_cargo,id_vinculo)
+                            #print (codigo)
 
 
             res = re.search(r'^[0-9]{3}[\s]\([0-9]{2}\.[0-9]{2}\)[\s][A-Z]{3,4}', line)
@@ -208,7 +200,7 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
             id_setor=int(dados[3])
             cargo=(dados[4]).rstrip()
             vinculo=(dados[5]).rstrip()
-            print ('0='+dados[0]+';'+'1='+dados[1]+';'+'2='+dados[2]+';'+'3='+dados[3]+';'+'4='+dados[4]+';'+'5='+dados[5])
+            #print ('0='+dados[0]+';'+'1='+dados[1]+';'+'2='+dados[2]+';'+'3='+dados[3]+';'+'4='+dados[4]+';'+'5='+dados[5])
     zip.close()
     '''
     # Listar os proventos e descontos
@@ -433,7 +425,7 @@ def gravarFolha_modelo1(file_zip,id_municipio,anomes):
             for prov in provents:
                     #print(codigo+';'+prov['tipo']+';'+prov['codigo']+';'+prov['provento']+';'+prov['valor'])
                     #writer.writerow({"Func":codigo, "Departamento":depto, "Setor":setor, "Id_cargo":id_cargo,"Cargo":cargo, "Id_vinculo": id_vinculo,"Vinculo":vinculo ,"Tipo": prov['tipo'], "Cod": prov['codigo'],'Provento':prov['provento'],'Valor':prov['valor']})
-                    id_provdesc=funcoes_gerais.searchProvDesc(id_municipio,prov['tipo'],prov['codigo'],'',False)
+                    id_provdesc=funcoes_gerais.searchProvDesc(id_municipio,prov['tipo'],prov['codigo'],'',True)
                     #print (str(id_municipio)+';'+str(202111)+';'+codigo+';'+str(depto)+';'+\
                         #str(setor)+';'+str(id_cargo)+';'+str(id_vinculo)+str(id_provdesc)+';'+prov['tipo']+';'+str(prov['valor']))
                     valor = prov['valor']
@@ -679,4 +671,95 @@ def folhacsv_modelo1(request, id_municipio,anomes):
 
 
 
+
+
+def gravarPovDesc_modelo1(file_zip,id_municipio,anomes):
+    depto=""
+    setor=""
+    lista_funcionario=[]
+
+    zip = zipfile.ZipFile(file_zip)
+
+    for filename in zip.namelist():
+        departamento=""
+        setor=""
+        lista_funcionario=[]
+        lista_proventos=[]
+        lista_cargo=[]
+        lista_vinculo=[]
+        lista_provdesc=[]
+        lin_cargo=0
+        lin_vinculo=0
+         
+
+        #print (filename)  #imprime o nome dos arquivo txt que estão empacotados no arquivo zip
+        file = zip.open(filename)
+        for line_no, line in enumerate(file,1):
+            #if line_no>700:
+            #    break
+            line=line.decode('ISO-8859-1')
+            if line_no>4:
+                if lin_cargo==line_no:
+                    if re.search(r'\s{7}[A-Z]+',line):
+                        cargo=(line[7:40]).rstrip()
+                        lin_cargo=0
+                        lin_vinculo=line_no+1
+                else:
+                    if lin_vinculo==line_no:
+                        if re.search(r'\s{7}[A-Z]+',line):
+                            vinculo=(line[7:40]).rstrip()
+                            lin_vinculo=0
+                            codigo=funcionario[0:6]
+                            nome=funcionario[-53:]
+                            id_dep=funcoes_gerais.searchDepartamento(id_municipio,departamento,'nome')
+                            id_set=funcoes_gerais.searchSetor(id_municipio,setor,'nome')
+                            if id_dep==0:
+                                print ('depto: '+departamento)
+                            if id_set==0:
+                                print ('setor: '+setor)
+
+
+                            lista_proventos.append(montaProventos(file_zip,codigo,id_dep,id_set,cargo,vinculo,line_no))
+
+            if re.search(r'^[0-9]{3}[\s]\([0-9]{2}\.[0-9]{2}\)[\s][A-Z]{3,4}', line):
+                codigo=line[0:10]
+                departamento=line[-(len(line)-12):]
+                departamento=departamento[0:38]
+                departamento=departamento.rstrip()
+
+            else:
+                if re.search(r'^[0-9]{3}[\s][A-Z]{3}', line):
+                    setor=(line[4:44]).rstrip()
+                else:
+                    if re.search(r'^[0-9]{6}[\s][A-Z]{3}', line):
+                        #print(depto+';'+setor+';'+line[0:50])
+                        funcionario=line[0:60]
+                        lin_cargo=line_no+1
+                        departamento==''
+                        setor==''
+
+    zip.close()
+
+    for ls in lista_proventos:
+        for rel in ls:
+            codigo = rel['codigo']
+            depto = rel['depto']
+            setor = rel['setor']
+            cargo = rel['cargo']
+            vinculo = rel['vinculo']
+            id_cargo = funcoes_gerais.searchCargo(id_municipio,cargo)
+            if id_cargo==0:
+                lista_cargo.append(cargo)
+            id_vinculo = funcoes_gerais.searchVinculo(id_municipio,vinculo)
+            if id_vinculo==0:
+                lista_vinculo.append(vinculo)
+
+            provents = rel['proventos']
+            
+            for prov in provents:
+                #print(prov)
+                funcoes_gerais.searchProvDesc(id_municipio,prov['tipo'],prov['codigo'],prov['provento'],True)
+                    #print(codigo+';'+prov['tipo']+';'+prov['codigo']+';'+prov['provento']+';'+prov['valor'])
+                    #writer.writerow({"Func":codigo, "Departamento":depto, "Setor":setor, "Id_cargo":id_cargo,"Cargo":cargo, "Id_vinculo": id_vinculo,"Vinculo":vinculo ,"Tipo": prov['tipo'], "Cod": prov['codigo'],'Provento':prov['provento'],'Valor':prov['valor']})
+                    #id_provdesc=funcoes_gerais.searchProvDesc(id_municipio,prov['tipo'],prov['codigo'],'',True)
 
