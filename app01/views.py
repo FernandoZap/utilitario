@@ -520,7 +520,6 @@ def gerandoFolha_modelo1(request):
         #current_user = request.user.iduser
         file_zip=request.FILES['filename']
         id_municipio=int(request.POST['municipio'])
-        tabela=request.POST['tabela']
         ano=request.POST['ano']
         mes=request.POST['mes']
         mes_extenso = funcoes_gerais.mesPorExtenso(mes)
@@ -534,8 +533,7 @@ def gerandoFolha_modelo1(request):
 
         if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
             if modelo==1:
-                if tabela=='folha':
-                    leituraZip.gravarFolha_modelo1(file_zip,id_municipio,anomes)
+                leituraZip.gravarFolha_modelo1(file_zip,id_municipio,anomes)
 
 
         return HttpResponseRedirect(reverse('app01:lendozip'))
