@@ -15,30 +15,8 @@ from django.http import HttpResponse
 #gravarSetor_modelo1
 #gravarCargo_modelo1
 
-    
-def valida_zip1(file_zip,string_pesquisa,referencia):
 
-
-    pesquisa=re.compile(string_pesquisa)
-
-    with zipfile.ZipFile(file_zip) as zip:
-
-        retorno=0
-        for filename in zip.namelist():
-            file = zip.open(filename)
-            for line_no, line in enumerate(file,1):
-                line=line.decode('ISO-8859-1')
-                res = pesquisa.search(line)
-                if res is None:
-                    zip.close()
-                    print ('fechando o valida_zip1 SEM sucesso  e com retorno 0')
-                    return 0
-                else:
-                    zip.close()
-                    print ('fechando o valida_zip1 COM sucesso e retorno 1')
-                    return 1
-
-def valida_zip2(file_zip,string_pesquisa,referencia):
+def valida_zip(file_zip,string_pesquisa,referencia):
 
     pesquisa_municipio=re.compile(string_pesquisa)
     pesquisa_anomes=re.compile(referencia)
@@ -71,61 +49,14 @@ def valida_zip2(file_zip,string_pesquisa,referencia):
                         return 1
 
 
-def departamento_modelo2(file):
-    pass
-
-
-def folha_modelo1(file_zip,id_municipio,anomes):
-
-        depto=""
-        setor=""
-        lista_setor=[]
-
-
-        zip = zipfile.ZipFile(file_zip)
-
-        for filename in zip.namelist():
-
-            #print (filename)  #imprime o nome dos arquivo txt que estão empacotados no arquivo zip
-            file = zip.open(filename)
-            for line_no, line in enumerate(file,1):
-                line=line.decode('ISO-8859-1')
-
-                res = re.search(r'^[0-9]{3}[\s]\([0-9]{2}\.[0-9]{2}\)[\s][A-Z]{3,4}', line)
-                if res:
-                    depto=line[0:3]
-                    nome_depto=line[12:61]
-                else:
-                    if re.search(r'^[0-9]{3}[\s][A-Z]{3}', line):
-                        cp=len(line)-4
-                        nome_setor=(line[4:43]).rstrip()
-                        lista_setor.append(line[0:3]+';'+depto+';'+nome_setor+';'+nome_depto)
-            set_setor=set(lista_setor)
-
-            for st in set_setor:
-                dados= st.split(';')
-                cod_setor=dados[0]
-                cod_depto=dados[1]
-                nome_setor=(dados[2]).rstrip()
-                nome_depto=(dados[3]).rstrip()
-                #print (cod_setor+';'+cod_depto+';'+nome_setor+';'+nome_depto)
-                if (nome_setor[0:29]=='SECRETARIA DESENVOLVIMENTO EC'):
-                    nome_setor='SETOR NAO CADASTRADO'
-                    print ('departamento: '+ nome_depto+';'+nome_setor+';'+str(id_municipio))
-                    departamento=Departamento.objects.filter(id_municipio=id_municipio,departamento__contains=nome_depto).first()
-                    if departamento is not None:
-                        print ('pesquisando setor')
-                        id_setor = funcoes_gerais.searchSetor(id_municipio,nome_setor,cod_setor,departamento.id_departamento)
 
 
 
-def funcionario_modelo1(file_zip,id_municipio,anomes):
+def importacaoFuncionario_modelo1(file_zip,id_municipio,anomes):
     # gravar os funcionarios
     depto=""
     setor=""
     lista_funcionario=[]
-
- 
 
     zip = zipfile.ZipFile(file_zip)
 
@@ -141,8 +72,7 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
 
         lin_cargo=0
         lin_vinculo=0
-         
-
+        data=''
         #print (filename)  #imprime o nome dos arquivo txt que estão empacotados no arquivo zip
         file = zip.open(filename)
         for line_no, line in enumerate(file,1):
@@ -157,25 +87,29 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
                     if lin_vinculo==line_no:
                         if re.search(r'\s{7}[A-Z]+',line):
                             vinculo=(line[7:40]).rstrip()
-                            lin_vinculo=0
                             codigo=funcionario[0:6]
                             nome=funcionario[-53:]
                             id_dep=funcoes_gerais.searchDepartamento(id_municipio,depto,'codigo')
                             id_set=funcoes_gerais.searchSetor(id_municipio,setor,'codigo')
-                            id_cargo=funcoes_gerais.searchCargo(id_municipio,cargo)
-                            id_vinculo=funcoes_gerais.searchCargo(id_municipio,vinculo)
+                            id_cargo=funcoes_gerais.searchCargo(id_municipio,cargo,'consultar')
+                            id_vinculo=funcoes_gerais.searchVinculo(id_municipio,vinculo,'consultar')
+                    else:
+                        if line_no==lin_vinculo+1:
+                            data=line[7:17]
+                            if len(data)==10:
+                                ano=data[6:10]
+                                dia=data[0:2]
+                                mes=data[3:5]
+                                data=ano+'-'+mes+'-'+dia
+                            else:
+                                data=''
 
+                            ch=(line[36:39]).lstrip()
+                            if ch=='':
+                                ch='0'
 
-
-
-                            #lista_proventos.append(montaProventos(file_zip,codigo,depto,setor,cargo,vinculo,line_no))
-                            #lista_provdesc.append(montaProvDesc(file_zip,codigo,depto,setor,cargo,vinculo,line_no))
-                            #print (codigo+';'+vinculo)
-
-                            #lista_funcionario.append(codigo+';'+nome.rstrip()+';'+str(id_dep)+';'+str(id_set)+';'+cargo.rstrip()+';'+vinculo.rstrip())
-                            lista_funcionario.append(codigo+';'+nome.rstrip()+';'+str(id_dep)+';'+str(id_set)+';'+str(id_cargo)+';'+str(id_vinculo))
-                            funcoes_gerais.gravarFuncionario(id_municipio,codigo,nome,id_dep,id_set,id_cargo,id_vinculo)
-                            #print (codigo)
+                            funcoes_gerais.gravarFuncionario(id_municipio,codigo,nome,id_dep,id_set,id_cargo,id_vinculo,data,ch)
+                            data=''
 
 
             res = re.search(r'^[0-9]{3}[\s]\([0-9]{2}\.[0-9]{2}\)[\s][A-Z]{3,4}', line)
@@ -192,59 +126,7 @@ def funcionario_modelo1(file_zip,id_municipio,anomes):
                         depto==''
                         setor==''
 
-        set_funcionario=set(lista_funcionario)
-        for st in set_funcionario:
-            dados=st.split(';')
-            id_funcionario=int(dados[0])
-            id_depto=int(dados[2])
-            id_setor=int(dados[3])
-            cargo=(dados[4]).rstrip()
-            vinculo=(dados[5]).rstrip()
-            #print ('0='+dados[0]+';'+'1='+dados[1]+';'+'2='+dados[2]+';'+'3='+dados[3]+';'+'4='+dados[4]+';'+'5='+dados[5])
     zip.close()
-    '''
-    # Listar os proventos e descontos
-    set_provdesc=set()
-    for subset1 in lista_provdesc:
-        for subset2 in subset1:
-            set_provdesc.add(subset2)
-    for subset3 in set_provdesc:
-        tipo5=subset3[0:1]
-        codigo5=subset3[1:4]
-        descricao5=subset3[-(len(subset3)-4):]
-
-        retorno = searchProvDesc(id_municipio,tipo5,codigo5,descricao5)
-
-    with open('folha_novembro.csv', mode='w', newline='') as csv_file:
-    
-        fieldnames = ["Func", "Departamento", "Setor", "Id_cargo", "Cargo", "Id_vinculo", "Vinculo","Tipo", "Cod", "Provento", "Valor"]
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        writer.writeheader()
-
-        for ls in lista_proventos:
-            for rel in ls:
-                codigo = rel['codigo']
-                depto = rel['depto']
-                setor = rel['setor']
-                cargo = (rel['cargo']).rstrip()
-                vinculo = (rel['vinculo']).rstrip()
-
-                id_cargo = funcoes_gerais.searchCargo(id_municipio,cargo)
-                if id_cargo==0:
-                    lista_cargo.append(cargo)
-                id_vinculo = funcoes_gerais.searchVinculo(id_municipio,vinculo)
-                if id_vinculo==0:
-                    lista_vinculo.append(vinculo)
-
-                provents = rel['proventos']
-                
-                for prov in provents:
-                        #print(codigo+';'+prov['tipo']+';'+prov['codigo']+';'+prov['provento']+';'+prov['valor'])
-                        writer.writerow({"Func":codigo, "Departamento":depto, "Setor":setor, "Id_cargo":id_cargo,"Cargo":cargo, "Id_vinculo": id_vinculo,"Vinculo":vinculo ,"Tipo": prov['tipo'], "Cod": prov['codigo'],'Provento':prov['provento'],'Valor':prov['valor']})
-
-    '''
-
-
 
 
 def montaProventos(file_zip,codigo,depto,setor,cargo,vinculo,line_num):
@@ -283,60 +165,13 @@ def montaProventos(file_zip,codigo,depto,setor,cargo,vinculo,line_num):
                                 dados_desc={'tipo':'D','codigo':desc_cod,'provento':desc_desc,'valor':desc_valor}
                                 lista.append(dados_desc)
 
-                            #dados = codigo+';'+prov_cod+';'+prov_desc+';'+prov_valor+';'+desc_cod+';'+desc_desc+';'+desc_valor
-                            #dados = codigo+';'+prov_cod+';'+prov_desc+';'+prov_valor+';'+desc_cod
 
-                            #lista.append(dados)
                         else:
                             break
 
             lista_completa=[{'codigo':codigo,'depto':depto,'setor':setor,'cargo':cargo,'vinculo':vinculo,'proventos':lista}] 
-        #filename.close()
 
     return lista_completa
-
-
-
-def montaProvDesc(file_zip,codigo,depto,setor,cargo,vinculo,line_num):
-    line_num=line_num-2
-    ok=0
-    lista=[]
-    lista_completa=[]
-
-    with zipfile.ZipFile(file_zip) as zip:
-
-        retorno=0
-        for filename in zip.namelist():
-            file = zip.open(filename)
-            for line_no, line in enumerate(file,1):
-                line=line.decode('ISO-8859-1')
-                if line_no==line_num:
-                    if codigo!=line[0:6]:
-                        break
-                    else:
-                        ok=1
-                if line_no>=line_num+2 and ok==1:
-                    if re.search(r'[A-Z]+',line) and ok==1:
-                        linha = (line.rstrip('\n')).rstrip('\r')
-                        if re.search(r'[0-9]{3}\s[A-Z]',linha) and ok==1:
-                            prov_cod=(linha[40:43]).rstrip()
-                            prov_desc=(linha[44:70]).rstrip()
-                            prov_valor=(linha[70:79]).lstrip()
-                            desc_cod=(linha[80:83]).rstrip()
-                            desc_desc=(linha[84:110]).rstrip()
-                            desc_valor=(linha[111:120]).lstrip()
-
-                            if len(prov_cod)>0 and len(prov_valor)>0:
-                                dados_prov='V'+prov_cod+prov_desc
-                                lista.append(dados_prov)
-                            if len(desc_cod)>0 and len(desc_valor)>0:
-                                dados_desc='D'+desc_cod+desc_desc
-                                lista.append(dados_desc)
-
-                        else:
-                            break
-
-    return lista
 
 
 def gravarFolha_modelo1(file_zip,id_municipio,anomes):
@@ -361,8 +196,8 @@ def gravarFolha_modelo1(file_zip,id_municipio,anomes):
         #print (filename)  #imprime o nome dos arquivo txt que estão empacotados no arquivo zip
         file = zip.open(filename)
         for line_no, line in enumerate(file,1):
-            if line_no>700:
-                break
+            #if line_no>700:
+            #    break
             line=line.decode('ISO-8859-1')
             if line_no>4:
                 if lin_cargo==line_no:
@@ -379,11 +214,6 @@ def gravarFolha_modelo1(file_zip,id_municipio,anomes):
                             nome=funcionario[-53:]
                             id_dep=funcoes_gerais.searchDepartamento(id_municipio,departamento,'nome')
                             id_set=funcoes_gerais.searchSetor(id_municipio,setor,'nome')
-                            if id_dep==0:
-                                print ('depto: '+departamento)
-                            if id_set==0:
-                                print ('setor: '+setor)
-
 
                             lista_proventos.append(montaProventos(file_zip,codigo,id_dep,id_set,cargo,vinculo,line_no))
 
@@ -413,10 +243,10 @@ def gravarFolha_modelo1(file_zip,id_municipio,anomes):
             setor = rel['setor']
             cargo = rel['cargo']
             vinculo = rel['vinculo']
-            id_cargo = funcoes_gerais.searchCargo(id_municipio,cargo)
+            id_cargo = funcoes_gerais.searchCargo(id_municipio,cargo,'consultar')
             if id_cargo==0:
                 lista_cargo.append(cargo)
-            id_vinculo = funcoes_gerais.searchVinculo(id_municipio,vinculo)
+            id_vinculo = funcoes_gerais.searchVinculo(id_municipio,vinculo,'consultar')
             if id_vinculo==0:
                 lista_vinculo.append(vinculo)
 
@@ -440,7 +270,7 @@ def gravarFolha_modelo1(file_zip,id_municipio,anomes):
                                 id_departamento=depto,id_setor=setor,id_cargo=id_cargo,id_vinculo=id_vinculo,\
                                 id_provento=id_provdesc,tipo=prov['tipo'],valor=valor)                    
 
-
+'''
 def gravarDepartamento_modelo1(file_zip,id_municipio):
 
     zip = zipfile.ZipFile(file_zip)
@@ -472,7 +302,9 @@ def gravarDepartamento_modelo1(file_zip,id_municipio):
             if search_dep==None:
                 Departamento.objects.create(id_municipio=id_municipio,codigo=codigo,departamento=departamento)
     zip.close()
+'''
 
+'''
 
 def gravarSetor_modelo1(file_zip,id_municipio):
 
@@ -531,8 +363,8 @@ def gravarSetor_modelo1(file_zip,id_municipio):
                 Setor.objects.create(id_departamento=id_depto,id_municipio=id_municipio,setor=setor,codigo=cod_setor)
     zip.close()
 
-
-
+'''
+'''
 def gravarCargo_modelo1(file_zip,id_municipio):
     depto=""
     setor=""
@@ -617,7 +449,7 @@ def gravarCargo_modelo1(file_zip,id_municipio):
 
 
 
-'''
+
 def pesquisa(linha):
     lista=[]
     objs=ProvDesc.objects.all()
@@ -671,7 +503,7 @@ def folhacsv_modelo1(request, id_municipio,anomes):
 
 
 
-
+'''
 
 def gravarPovDesc_modelo1(file_zip,id_municipio,anomes):
     depto=""
@@ -756,4 +588,144 @@ def gravarPovDesc_modelo1(file_zip,id_municipio,anomes):
                     #print(codigo+';'+prov['tipo']+';'+prov['codigo']+';'+prov['provento']+';'+prov['valor'])
                     #writer.writerow({"Func":codigo, "Departamento":depto, "Setor":setor, "Id_cargo":id_cargo,"Cargo":cargo, "Id_vinculo": id_vinculo,"Vinculo":vinculo ,"Tipo": prov['tipo'], "Cod": prov['codigo'],'Provento':prov['provento'],'Valor':prov['valor']})
                     #id_provdesc=funcoes_gerais.searchProvDesc(id_municipio,prov['tipo'],prov['codigo'],'',True)
+
+
+
+'''
+
+
+
+def importacaoGeral_modelo1(file_zip,id_municipio,anomes):
+
+    zip = zipfile.ZipFile(file_zip)
+
+    kk=0
+    lista_depto=[]
+    lista_setor=[]
+    lista_cargos=[]
+    lin_cargo=0
+    lin_vinculo=0
+    l_cargo=[]
+    l_vinculo=[]
+
+    for filename in zip.namelist():
+
+        arquivo =  filename
+        folha=''
+        file = zip.open(filename)
+        for line_no, line in enumerate(file,1):
+            line=line.decode('ISO-8859-1')
+
+            if re.search(r'^[0-9]{3}[\s]\([0-9]{2}\.[0-9]{2}\)[\s][A-Z]{3,4}', line):
+                lista_depto.append(line[0:50])
+                depto=line[0:11]
+
+            else: 
+                if re.search(r'^[0-9]{3}[\s][A-Z]{3}', line):
+                    if len(depto)>0:
+                        lista_setor.append(line[0:3]+';'+depto+';'+line[4:44])
+                        depto=''
+                else:
+                    if re.search(r'^[0-9]{6}[\s][A-Z]{3}', line):
+                        funcionario=line[0:60]
+                        lin_cargo=line_no+1
+                    else:
+                        if lin_cargo==line_no:
+                            if re.search(r'\s{7}[A-Z]+',line):
+                                cargo=(line[7:40]).rstrip()
+                                lin_cargo=0
+                                lin_vinculo=line_no+1
+                                l_cargo.append(cargo)
+                        else:
+                            if lin_vinculo==line_no:
+                                if re.search(r'\s{7}[A-Z]+',line):
+                                    vinculo=(line[7:40]).rstrip()
+                                    lin_vinculo=0
+                                    codigo=funcionario[0:6]
+                                    nome=funcionario[-53:]
+                                    l_vinculo.append(vinculo)
+
+
+            kk+=1
+        set_depto=set(lista_depto)
+        set_setor=set(lista_setor) 
+        for dep in set_depto:
+            codigo=dep[0:11]
+            departamento=dep[-(len(dep)-12):]
+            departamento=departamento.rstrip()
+
+            obj_dep=Departamento.objects.filter(id_municipio=id_municipio,codigo=codigo).first()
+            if obj_dep is None:
+                Departamento.objects.create(id_municipio=id_municipio,codigo=codigo,departamento=departamento)
+        for setor in set_setor:
+            itens=setor.split(';')
+            cod_setor=itens[0]
+            cod_depto=itens[1]
+            setor=itens[2].rstrip()
+            #print (cod_depto +' - '+cod_setor+' - '+setor)
+            obj_setor=Setor.objects.filter(id_municipio=id_municipio,codigo=cod_setor).first()
+            if obj_setor is None:
+                obj_dep=Departamento.objects.filter(id_municipio=id_municipio,codigo=cod_depto).first()
+                if obj_dep is not None:
+                    id_dep=obj_dep.id_departamento
+                    Setor.objects.create(id_municipio=id_municipio,id_departamento=id_dep,setor=setor,codigo=cod_setor)
+
+
+        s_cargo=set(l_cargo)
+        s_vinculo=set(l_vinculo)
+
+        for ls in s_cargo:
+            cargo=ls
+            cargo = cargo.rstrip()
+            id_cargo = funcoes_gerais.searchCargo(id_municipio,cargo,'incluir')
+        for ls in s_vinculo:
+            vinculo=ls
+            vinculo = vinculo.rstrip()
+            id_vinculo = funcoes_gerais.searchVinculo(id_municipio,vinculo,'incluir')
+
+    zip.close()
+
+
+
+def importacaoProventos_modelo1(file_zip,id_municipio,anomes):
+
+    zip = zipfile.ZipFile(file_zip)
+
+    kk=0
+    lista_proventos=[]
+    line_resumo=0
+
+    for filename in zip.namelist():
+
+        arquivo =  filename
+        folha=''
+        file = zip.open(filename)
+        for line_no, line in enumerate(file,1):
+            line=line.decode('ISO-8859-1')
+
+            if re.search(r'RESUMO GERAL DA FOLHA', line):
+                line_resumo=line_no
+            else:
+                if line_no>line_resumo and line_resumo>20:
+                    if re.search(r'[\s]{30,40}\s[0-9]{3}\s', line):
+                        linha=(line[32:70]).rstrip()
+                        lista_proventos.append(linha)
+            if len(lista_proventos)>10:
+                if re.search(r'[-]{10,20}\s', line):
+                    break
+
+    zip.close()
+    for lp in lista_proventos:
+        prov_cod = lp[0:3]
+        prov_desc = lp[-(len(lp)-3):]
+        prov_desc=(prov_desc).rstrip()
+        prov_desc=(prov_desc).lstrip()
+
+        if int(prov_cod)<500:
+            tipo='V'
+        else:
+            tipo='D'
+        id = funcoes_gerais.searchProvDesc(id_municipio,tipo,prov_cod,prov_desc,True)
+
+
 

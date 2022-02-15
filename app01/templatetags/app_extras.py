@@ -30,9 +30,16 @@ def total_folha_mes(id_municipio,anomes,tipo):
     cursor.close()
     del cursor
 
-    r1=currency(r1)
+    if r1 is None:
+        r1=0
 
-    r = r1[0:len(r1)-3]+','+r1[-2:]
+    r=currency(r1)
+
+    comp=len(str(r))
+
+    r1=str(r)
+
+    r = r1[0:comp-3]+','+r1[-2:]
 
     return r
 
@@ -53,9 +60,16 @@ def total_departamento(id_municipio,anomes,tipo,id_departamento):
     cursor.close()
     del cursor
 
-    r1=currency(r1)
-    r = r1[0:len(r1)-3]+','+r1[-2:]
+    if r1 is None:
+        r1=0
 
+    r=currency(r1)
+
+    comp=len(str(r))
+
+    r1=str(r)
+
+    r = r1[0:comp-3]+','+r1[-2:]
 
     return r
 
@@ -76,8 +90,17 @@ def total_setor(id_municipio,anomes,tipo,id_departamento,id_setor):
     cursor.close()
     del cursor
 
-    r1=currency(r1)
-    r = r1[0:len(r1)-3]+','+r1[-2:]
+    if r1 is None:
+        r1=0
+
+    r=currency(r1)
+
+    comp=len(str(r))
+
+    r1=str(r)
+
+
+    r = r1[0:comp-3]+','+r1[-2:]
 
     return r
 

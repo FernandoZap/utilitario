@@ -32,24 +32,30 @@ def searchSetor(id_municipio,chave,tipo):
 
 
 
-def searchCargo(id_municipio,nome_do_cargo):
+def searchCargo(id_municipio,nome_do_cargo,operacao):
     obj=Cargo.objects.filter(id_municipio=id_municipio).filter(cargo=nome_do_cargo).first()
     if obj is None:
-        Cargo.objects.create(id_municipio=id_municipio,cargo=nome_do_cargo)
-        obj=Cargo.objects.filter(id_municipio=id_municipio,cargo=nome_do_cargo).first()
-        id_cargo=obj.id_cargo
+        if operacao=='incluir':
+            Cargo.objects.create(id_municipio=id_municipio,cargo=nome_do_cargo)
+            obj=Cargo.objects.filter(id_municipio=id_municipio,cargo=nome_do_cargo).first()
+            id_cargo=obj.id_cargo
+        else:
+            id_cargo=0
     else:
         id_cargo=obj.id_cargo
     return id_cargo
 
 
 
-def searchVinculo(id_municipio,nome_do_vinculo):
+def searchVinculo(id_municipio,nome_do_vinculo,operacao):
     obj=Vinculo.objects.filter(id_municipio=id_municipio).filter(vinculo=nome_do_vinculo).first()
     if obj is None:
-        Vinculo.objects.create(id_municipio=id_municipio,vinculo=nome_do_vinculo)
-        obj=Vinculo.objects.filter(id_municipio=id_municipio,vinculo=nome_do_vinculo).first()
-        id_vinculo=obj.id_vinculo
+        if operacao=='incluir':
+            Vinculo.objects.create(id_municipio=id_municipio,vinculo=nome_do_vinculo)
+            obj=Vinculo.objects.filter(id_municipio=id_municipio,vinculo=nome_do_vinculo).first()
+            id_vinculo=obj.id_vinculo
+        else:
+            id_vinculo=0
     else:
         id_vinculo=obj.id_vinculo
     return id_vinculo
@@ -78,7 +84,7 @@ def mesPorExtenso(mes):
 
 
 
-def gravarFuncionario_local(codigo,nome,id_dep,id_set,id_cargo,id_vinculo):
+def gravarFuncionario_local(codigo,nome,id_dep,id_set,id_cargo,id_vinculo,data,carga_horaria):
     
 
     cursor = connection.cursor()
@@ -91,7 +97,10 @@ def gravarFuncionario_local(codigo,nome,id_dep,id_set,id_cargo,id_vinculo):
 
 
 
-def gravarFuncionario(id_municipio,codigo,nome,id_dep,id_set,id_cargo,id_vinculo):
+def gravarFuncionario(id_municipio,codigo,nome,id_dep,id_set,id_cargo,id_vinculo,data_admissao,carga_horaria):
+    if data_admissao=='':
+        data_admissao=None
+
     obj = Funcionario.objects.filter(id_municipio=id_municipio,codigo=codigo).first()
     if obj is None:
         Funcionario.objects.create(
@@ -101,7 +110,9 @@ def gravarFuncionario(id_municipio,codigo,nome,id_dep,id_set,id_cargo,id_vinculo
             id_vinculo = id_vinculo,
             id_municipio = id_municipio,
             nome = nome,
-            codigo = codigo
+            codigo = codigo,
+            data_admissao=data_admissao,
+            carga_horaria=carga_horaria
             )
 
 def proventosFuncionario(id_municipio,anomes,id_funcionario):
@@ -124,8 +135,4 @@ def cabecalhoFolha(id_municipio):
     for obj in objs:
         lista.append(obj.descricao)
     return lista
-
-
-
-
 

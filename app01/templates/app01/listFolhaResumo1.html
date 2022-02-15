@@ -147,6 +147,7 @@ function fnSubmit(){
 
    <tr><td>{{ reg.setor }}</td><td class="aignRigth">{% total_setor reg.id_municipio reg.anomes 'V' reg.id_departamento reg.id_setor %}</td><td class="aignRigth">{% total_setor reg.id_municipio reg.anomes 'D' reg.id_departamento reg.id_setor %}</td><td class="aignRigth">{% total_setor reg.id_municipio reg.anomes 'R' reg.id_departamento reg.id_setor %}</td></tr>
 
+
    {% endfor %} 
 
    </table>
@@ -158,6 +159,8 @@ function fnSubmit(){
     <tr><td>Resultado</td><td class="aignRigth">{% total_folha_mes id_municipio anomes 'R' %}</td></tr>
    </table>
    <hr>
+
+
 
    {% endif %}
  

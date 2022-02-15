@@ -8,7 +8,7 @@
 <p align="center">{{ titulo }}</p>
 
     
-   <form enctype="multipart/form-data" action="{% url 'app01:lendozip' %}" method="post">
+   <form enctype="multipart/form-data" action="{% url 'app01:importacaoGeral' %}" method="post">
     {%csrf_token%}
 
    {% if messages %}
@@ -64,7 +64,6 @@
     </select>   
 
     </div>
-
 
 <div class="row">
 <div class="form-group">  

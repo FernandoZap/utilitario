@@ -39,8 +39,10 @@ def processUserInfo(request,userInfo):
     print()
     return "Info received successfuly"
 
+def lendozip_modelo1(request):
+    pass
 
-@login_required
+'''
 def lendozip_modelo1(request):
     #Departamento.xtruncate()
     #Setor.truncate()
@@ -61,12 +63,12 @@ def lendozip_modelo1(request):
         modelo = municipio.modelo
         string_pesquisa = municipio.string_pesquisa
 
-        if leituraZip.valida_zip2(file_zip,string_pesquisa,referencia)==1:
+        if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
             print ('processando arquivo zip')
         else:
             print ('arquivo nao corresponde')
 
-        if leituraZip.valida_zip2(file_zip,string_pesquisa,referencia)==1:
+        if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
             if modelo==1:
                 if tabela=='departamento':
                     print ('processando departamento')
@@ -194,7 +196,7 @@ def lendozipFuncionario(request):
                 'municipios':municipios
             }
           )
-
+'''
 def departamentoList(request):
     if (request.method == "POST"):
         id_municipio=request.POST['municipio']
@@ -271,7 +273,7 @@ def listDepSetor(request):
 
     else:
         municipio=''
-    municipios = Municipio.objects.all()
+    municipios = Municipio.objects.all().order_by('municipio')
     titulo = 'Lists dos Departamentos'
 
     sql = "select * from f006_listDepSetor('"+municipio+"')"
@@ -329,13 +331,13 @@ def listFolhaResumo(request):
             cursor.execute(sql)    
         else:
             params=(76,202111)
-            cursor.execute("SELECT v.id_departamento,d.departamento,p.codigo,p.descricao,SUM(vantagem) as vantagem, SUM(desconto) AS desconto FROM v003_proventos v,provdesc p,departamento d WHERE v.id_departamento=d.id_departamento AND  v.id_provento=p.id_provdesc AND v.id_municipio=%s AND v.anomes=%s  GROUP BY v.id_departamento,d.departamento,p.codigo,p.descricao ORDER BY d.departamento", [id_municipio,anomes])    
+            cursor.execute("SELECT p.codigo,p.descricao,SUM(vantagem) as vantagem, SUM(desconto) AS desconto FROM v003_proventos v,provdesc p,departamento d WHERE v.id_departamento=d.id_departamento AND  v.id_provento=p.id_provdesc AND v.id_municipio=%s AND v.anomes=%s  GROUP BY p.codigo,p.descricao", [id_municipio,anomes])    
         if opcao=='01':
             query1 = dictfetchall(cursor)
         else:
             query2 = dictfetchall(cursor)
 
-    municipios = Municipio.objects.all()
+    municipios = Municipio.objects.all().order_by('municipio')
 
 
     return render(request, 'app01/listFolhaResumo1.html',
@@ -424,6 +426,7 @@ def gravarCSVFolha(request):
 
 
 def acertaProventos(request):
+    '''
     ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='111',descricao='SUB. DO PREFEITO',ordenacao1=1)
     ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='112',descricao='SUB. DO VICE-PREFEIT',ordenacao1=2)
     ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='001',descricao='VENCIMENTO BASE',ordenacao1=3)
@@ -460,4 +463,89 @@ def acertaProventos(request):
     ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='605',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
     ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='606',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
     ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='599',descricao='EMPR.CONSIGNAVEL BRA',ordenacao1=0)
-    return render("<h1>Proventos e Descontos concluidos</h1")    
+    '''
+    return render(request, 'app01/gravarCSVFolha.html',
+        {
+            'titulo_pagina': 'titulo',
+
+        }
+    )
+
+
+
+
+@login_required
+def importacaoGeral(request):
+    #------------------------------------------------------------------------------
+    # esta rotina para ler o arquivo .zip da folha de pagamento de cada municipio
+    # e gravar no banco os departamentos/setores/funcionarios/cargos/vinculos,
+    #  proventos e descontos.
+    #-----------------------------------------------------------------------------
+
+    if (request.method == "POST" and request.FILES['filename']):
+        #current_user = request.user.iduser
+        file_zip=request.FILES['filename']
+        id_municipio=int(request.POST['municipio'])
+        ano=request.POST['ano']
+        mes=request.POST['mes']
+        mes_extenso = funcoes_gerais.mesPorExtenso(mes)
+        referencia='FOLHA REF:'+mes_extenso+'/'+ano
+        anomes=ano+mes
+
+
+        municipio = Municipio.objects.get(id_municipio=id_municipio)
+        modelo = municipio.modelo
+        string_pesquisa = municipio.string_pesquisa
+
+        if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
+            if modelo==1:
+                leituraZip.importacaoGeral_modelo1(file_zip,id_municipio,anomes)
+                leituraZip.importacaoProventos_modelo1(file_zip,id_municipio,anomes)
+                leituraZip.importacaoFuncionario_modelo1(file_zip,id_municipio,anomes)
+
+        return HttpResponseRedirect(reverse('app01:importacaoGeral'))
+    else:
+        titulo = 'Inclusao de Deptos/Setores/Funcionarios'
+        municipios = Municipio.objects.all().order_by('municipio')
+    return render(request, 'app01/importacaoGeral.html',
+            {
+                'titulo': titulo,
+                'municipios':municipios
+            }
+          )
+
+
+def gerandoFolha_modelo1(request):
+    if (request.method == "POST" and request.FILES['filename']):
+        #current_user = request.user.iduser
+        file_zip=request.FILES['filename']
+        id_municipio=int(request.POST['municipio'])
+        tabela=request.POST['tabela']
+        ano=request.POST['ano']
+        mes=request.POST['mes']
+        mes_extenso = funcoes_gerais.mesPorExtenso(mes)
+        referencia='FOLHA REF:'+mes_extenso+'/'+ano
+        anomes=ano+mes
+
+
+        municipio = Municipio.objects.get(id_municipio=id_municipio)
+        modelo = municipio.modelo
+        string_pesquisa = municipio.string_pesquisa
+
+        if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
+            if modelo==1:
+                if tabela=='folha':
+                    leituraZip.gravarFolha_modelo1(file_zip,id_municipio,anomes)
+
+
+        return HttpResponseRedirect(reverse('app01:lendozip'))
+        #return render(request, 'app01/teste.html')
+    else:
+        titulo = 'Importação da Folha de Pagamento'
+        municipios = Municipio.objects.all().order_by('municipio')
+    return render(request, 'app01/lendozip.html',
+            {
+                'titulo': titulo,
+                'municipios':municipios
+            }
+          )
