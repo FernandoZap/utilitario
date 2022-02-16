@@ -41,11 +41,9 @@ def valida_zip(file_zip,string_pesquisa,referencia):
                 if contador>7:
                     if pesquisa1==0 or pesquisa2==0:
                         zip.close()
-                        print ('fechando SEM sucesso!')
                         return 0
                     else:
                         zip.close()
-                        print ('fechando COM sucesso!')
                         return 1
 
 

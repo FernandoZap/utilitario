@@ -260,7 +260,7 @@ def gravarCSVFolha(request):
             connection.close()
             
         finally:
-            print ("Erro na inclusao")
+            print ("encerrando")
             
         return response
 
@@ -296,7 +296,6 @@ def importacaoGeral(request):
         mes=request.POST['mes']
         anomes=int(ano+mes)
 
-        Folha.truncate()
 
 
         '''
@@ -325,6 +324,7 @@ def importacaoGeral(request):
 
 
         if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
+            Folha.objects.filter(id_municipio=id_municipio,anomes=anomes).delete()
             if modelo==1:
                 leituraZip.importacaoGeral_modelo1(file_zip,id_municipio,anomes)
                 leituraZip.importacaoProventos_modelo1(file_zip,id_municipio,anomes)
@@ -363,13 +363,20 @@ def gerandoFolha_modelo1(request):
         #current_user = request.user.iduser
         file_zip=request.FILES['filename']
         id_municipio=int(request.POST['municipio'])
+
+
+        municipio = Municipio.objects.get(id_municipio=id_municipio)
+        modelo = municipio.modelo
+        string_pesquisa = municipio.string_pesquisa
+
+
         ano=request.POST['ano']
         mes=request.POST['mes']
-        mes_extenso = funcoes_gerais.mesPorExtenso(mes)
+        mes_extenso = funcoes_gerais.mesPorExtenso(mes,modelo)
         referencia='FOLHA REF:'+mes_extenso+'/'+ano
         anomes=int(ano+mes)
 
-        Folha.truncate()
+        Folha.objects.filter(id_municipio=id_municipio,anomes=anomes).delete()
 
         '''
 
@@ -386,9 +393,6 @@ def gerandoFolha_modelo1(request):
                   )
         '''
 
-        municipio = Municipio.objects.get(id_municipio=id_municipio)
-        modelo = municipio.modelo
-        string_pesquisa = municipio.string_pesquisa
 
         if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
             if modelo==1:
@@ -402,8 +406,8 @@ def gerandoFolha_modelo1(request):
                         'mensagem':mensagem
                     }
                   )
+        mensagem='Processo Concluído'
 
-        return HttpResponseRedirect(reverse('app01:lendozip'))
     return render(request, 'app01/lendozip.html',
             {
                 'titulo': titulo_html,
