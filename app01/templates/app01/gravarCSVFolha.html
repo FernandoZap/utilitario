@@ -27,7 +27,7 @@
     
     <div class="col">
     <label for="id_municipio" class="col-form-label">Município</label>
-    <select name="municipio"  id="id_municipio" class="form-control">
+    <select name="municipio"  id="id_municipio" class="form-control" required>
       <option value=""></option>
       {% for municipio in municipios %}
         <option value="{{ municipio.id_municipio }}">{{ municipio.municipio }}</option>
@@ -38,15 +38,15 @@
 
     <div class="col">
     <label for="id_ano" class="col-form-label">Ano</label>
-    <select name="ano"  id="id_ano" class="form-control">
+    <select name="ano"  id="id_ano" class="form-control" required>
       <option value=""></option>
-      <option value="2021" selected >2021</option>
+      <option value="2021">2021</option>
       <option value="2022">2022</option>
       <option value="2023">2023</option>
     </select>   
 
     <label for="id_mes" class="col-form-label">Mes</label>
-    <select name="mes"  id="id_mes" class="form-control">
+    <select name="mes"  id="id_mes" class="form-control" required>
       <option value=""></option>
       <option value="01">Janeiro</option>
       <option value="02">Fevereiro</option>
@@ -58,12 +58,16 @@
       <option value="08">Agosto</option>
       <option value="09">Setembro</option>
       <option value="10">Outubro</option>
-      <option value="11" selected >Novembro</option>
+      <option value="11">Novembro</option>
       <option value="12">Dezembro</option>
 
     </select>   
 
     </div>
+
+    <br>
+
+    <h2><span class="mensagem">{{ mensagem }}</span></h2>
 
 </div>    
 </div>  
@@ -84,12 +88,25 @@
 
 
 <script>
+
 function fnSubmit(){
-  document.getElementById("bt_submit").disabled=true;
-  document.getElementById("msgDiv").style.display = "block";
-  document.getElementById("submit").click();
+  var dados_ok=0;
+      if (document.getElementById("id_municipio").value!=""){
+        if (document.getElementById("id_ano").value!=""){
+          if (document.getElementById("id_mes").value!=""){
+             dados_ok=1;
+          }
+        }
+      }
+   if (dados_ok==1){
+    document.getElementById("bt_submit").disabled=true;
+    document.getElementById("msgDiv").style.display = "block";
+    document.getElementById("submit").click();
+   }
 
 }
+
+
 </script>
 <style>
 #msgDiv {
@@ -97,6 +114,11 @@ function fnSubmit(){
   height: 150px;
   background-color: lightblue;
   font-size: 24px;
+}
+
+.mensagem {
+  color: red;
+
 }
 
 </style>

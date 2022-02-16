@@ -1,11 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.views.generic import (ListView)
 from django.http import HttpResponse,HttpResponseRedirect
 from . import incluirTramitacao,leituraZip,funcoes_gerais
 from django.urls import reverse
 #from .forms import f001_Tramitacoes,Folha_01Form
 from django.contrib.auth.decorators import login_required
-from .models import Municipio,Departamento,Setor,ProvDesc
+from .models import Municipio,Departamento,Setor,ProvDesc,Folha
 from accounts.models import User
 import csv
 import datetime
@@ -39,164 +39,8 @@ def processUserInfo(request,userInfo):
     print()
     return "Info received successfuly"
 
-def lendozip_modelo1(request):
-    pass
 
-'''
-def lendozip_modelo1(request):
-    #Departamento.xtruncate()
-    #Setor.truncate()
-    #Vinculo.truncate()
-    if (request.method == "POST" and request.FILES['filename']):
-        #current_user = request.user.iduser
-        file_zip=request.FILES['filename']
-        id_municipio=int(request.POST['municipio'])
-        tabela=request.POST['tabela']
-        ano=request.POST['ano']
-        mes=request.POST['mes']
-        mes_extenso = funcoes_gerais.mesPorExtenso(mes)
-        referencia='FOLHA REF:'+mes_extenso+'/'+ano
-        anomes=ano+mes
-
-
-        municipio = Municipio.objects.get(id_municipio=id_municipio)
-        modelo = municipio.modelo
-        string_pesquisa = municipio.string_pesquisa
-
-        if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
-            print ('processando arquivo zip')
-        else:
-            print ('arquivo nao corresponde')
-
-        if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
-            if modelo==1:
-                if tabela=='departamento':
-                    print ('processando departamento')
-                    leituraZip.gravarDepartamento_modelo1(file_zip,id_municipio)
-                else:
-                    if tabela=='setor':
-                        print ('processando setor')
-                        leituraZip.gravarSetor_modelo1(file_zip,id_municipio)
-                    else:
-                        if tabela=='cargo':
-                            print ('processando cargo')
-                            leituraZip.gravarCargo_modelo1(file_zip,id_municipio)
-                        else:
-                            if tabela=='folha':
-                                print ('processando folha')
-                                leituraZip.gravarFolha_modelo1(file_zip,id_municipio,anomes)
-                            else:
-                                if tabela=='funcionario':
-                                    #print ('processando funcionario')
-                                    leituraZip.funcionario_modelo1(file_zip,id_municipio,anomes)
-                                else:
-                                    if tabela=='folha_csv':
-                                        leituraZip.folhacsv_modelo1(request,id_municipio,anomes)
-                                    else:
-                                        if tabela=='proventos':
-                                            leituraZip.gravarPovDesc_modelo1(file_zip,id_municipio,anomes)
-
-
-
-            else:
-                if modelo==2:
-                    if tabela=='departamento':
-                        leituraZip.departamento_modelo2(file_zip,id_municipio)
-                    else:
-                        if tabela=='setor':
-                            leituraZip.setor_modelo2(file_zip,id_municipio)
-
-        return HttpResponseRedirect(reverse('app01:lendozip'))
-        #return render(request, 'app01/teste.html')
-    else:
-        titulo = 'Inclusao de Deptos/Setores/Funcionarios'
-        municipios = Municipio.objects.all().order_by('municipio')
-    return render(request, 'app01/lendozip.html',
-            {
-                'titulo': titulo,
-                'municipios':municipios
-            }
-          )
-
-
-def lendozipFuncionario(request):
-    #Departamento.truncate()
-    if (request.method == "POST" and request.FILES['filename']):
-        current_user = request.user.iduser
-        file_zip=request.FILES['filename']
-        id_municipio=int(request.POST['municipio'])
-
-        depto=""
-        setor=""
-        funcionario=""
-        lista_depto=[]
-        lista_setor=[]
-        lista_funcionario=[]        
-
-
-        zip = zipfile.ZipFile(file_zip)
-
-        kk=0
-        for filename in zip.namelist():
-
-            #print (filename)  #imprime o nome dos arquivo txt que estão empacotados no arquivo zip
-            arquivo =  filename
-            folha=''
-            funcionario=''
-            file = zip.open(filename)
-            for line_no, line in enumerate(file,1):
-                line=line.decode('ISO-8859-1')
-
-                res = re.search(r'^[0-9]{3}[\s]\([0-9]{2}\.[0-9]{2}\)[\s][A-Z]{3,4}', line)
-                if res:
-                    lista_depto.append(line[0:50])
-                    depto=line[0:3]
-                else:
-                    if re.search(r'^[0-9]{3}[\s][A-Z]{3}', line):
-                        cp=len(line)-4
-                        lista_setor.append(line[0:3]+depto+line[-cp:])
-
-                kk+=1
-                #if kk>10500:
-                    #break
-            set_depto=[] #set(lista_depto)
-            set_setor=set(lista_setor)
-            for dep in set_depto:
-                id_depto=int(dep[0:3])
-                codigo=dep[5:10]
-                departamento=dep[-(len(dep)-12):]
-                search_dep=Departamento.objects.filter(id_depto=id_depto,id_municipio=id_municipio).first()
-                if search_dep==None:
-                    Departamento.objects.create(id_depto=id_depto,id_municipio=id_municipio,codigo=codigo,departamento=departamento)
-
-            for st in set_setor:
-                id_setor=int(st[0:3])
-                id_depto=int(st[3:6])
-                cp=len(st)-6
-                setor=st[-cp:]
-                setor=setor[0:50]
-                #print ('setor: '+id_setor+';'+id_depto+';'+setor)
-
-
-                search_dep=Setor.objects.filter(id_setor=id_setor,id_depto=id_depto,id_municipio=id_municipio).first()
-                if search_dep==None:
-                    Setor.objects.create(id_setor=id_setor,id_depto=id_depto,id_municipio=id_municipio,setor=setor)
-
-
-
-                #print ('departamento: '+dep[0:3]+';'+dep[5:10]+';'+dep[-(len(dep)-12):])
-
-        return HttpResponseRedirect(reverse('app01:folha_01'))
-    else:
-        titulo = 'Cadastro de Folha Leitura Arquivo Zip'
-        municipios = Municipio.objects.all().order_by('municipio')
-    return render(request, 'app01/lendozipFuncionario.html',
-            {
-                'titulo_pagina': titulo,
-                'municipios':municipios
-            }
-          )
-'''
+@login_required
 def departamentoList(request):
     if (request.method == "POST"):
         id_municipio=request.POST['municipio']
@@ -225,7 +69,7 @@ def dictfetchall(cursor):
         for row in cursor.fetchall()
     ]
 
-
+@login_required
 def setorList1(request):
     cursor = connection.cursor()
 
@@ -254,15 +98,14 @@ def setorList1(request):
     return render (request, 'app01/output.html',{'valor':r5})
 
 
-
+@login_required
 def setorList(request):
     #obj = Folha.objects.all()
     
     return render (request, 'app01/output.html',{'data':obj})
 
 
-
-
+@login_required
 def listDepSetor(request):
 
     if (request.method == "POST"):
@@ -292,9 +135,7 @@ def listDepSetor(request):
             }
           )
 
-
-
-
+@login_required
 def listFolhaResumo(request):
 
     opcao=''
@@ -354,8 +195,7 @@ def listFolhaResumo(request):
           )
 
 
-
-
+@login_required
 def gravarCSVFolha(request):
 
     if request.method=='POST':
@@ -364,11 +204,22 @@ def gravarCSVFolha(request):
         mes=request.POST['mes']
         anomes=int(ano+mes)
 
-    
+        obj = Folha.objects.filter(id_municipio=id_municipio,anomes=anomes).first()
+        if obj is None:
+            municipios=Municipio.objects.all().order_by('municipio')
+            return render(request, 'app01/gravarCSVFolha.html',
+                    {
+                        'titulo': 'Impressao do Excel',
+                        'municipios':municipios,
+                        'mensagem':'O arquivo Zip ainda não foi importado'
+
+                    }
+                )
+
+
+
+
         response = HttpResponse(content_type='text/csv')
-
-
-
         response['Content-Disposition'] = 'attachment; filename="folha_20210214.csv"'
         if (1==1):
             sql_command =   """
@@ -390,17 +241,17 @@ def gravarCSVFolha(request):
             contador=0
             while row and contador<17000:
                 contador=contador+1
-                id_funcionario=row[2]
+                id_funcionario=row[10]
                 itens=[]
                 lista=[]
 
                 lista = funcoes_gerais.proventosFuncionario(id_municipio,anomes,id_funcionario)
                 #print (lista)
 
-                itens = [row[3],row[4],row[5],row[6],row[7],row[8]]
+                itens = [row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7]]
                 for kk in range(0, len(lista)):
                    itens.append(lista[kk])
-                   print (str(kk)+'. '+lista[kk])
+                   #print (str(kk)+'. '+lista[kk])
 
                 writer.writerow(itens)
                 row = db_cursor.fetchone() 
@@ -412,66 +263,18 @@ def gravarCSVFolha(request):
             print ("Erro na inclusao")
             
         return response
+
     else:
-        titulo = 'Dados Gerais do Pasta'
+        titulo = 'Impressao do Excel'
         municipios=Municipio.objects.all()
     return render(request, 'app01/gravarCSVFolha.html',
         {
-            'titulo_pagina': titulo,
-            'municipios':municipios
+            'titulo': titulo,
+            'municipios':municipios,
+            'mensagem':''
 
         }
     )
-
-
-
-def acertaProventos(request):
-    '''
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='111',descricao='SUB. DO PREFEITO',ordenacao1=1)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='112',descricao='SUB. DO VICE-PREFEIT',ordenacao1=2)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='001',descricao='VENCIMENTO BASE',ordenacao1=3)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='058',descricao='GRATIFICACAO',ordenacao1=4)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='131',descricao='REPRESENTACAO',ordenacao1=5)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='190',descricao='SAL. FAMILIA F001',ordenacao1=6)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='230',descricao='ADC P/TEMP.SERV A008',ordenacao1=7)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='408',descricao='1/3 FERIAS',ordenacao1=8)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='014',descricao='ADIC.NOTURNO',ordenacao1=9 )
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='191',descricao='SALARIO FAMILIA',ordenacao1=10 )
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='033',descricao='PENSAO ALIMENTI',ordenacao1=11 )
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='136',descricao='GRAT. POLIVALENTE',ordenacao1=12)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='137',descricao='GRAT. EDUC. ESPECIAL',ordenacao1=13)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='068',descricao='VENCIMENTO BASE PROP',ordenacao1=14)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='022',descricao='SALARIO MATERNIDADE',ordenacao1=15 )
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='026',descricao='INSALUBRIDADE',ordenacao1=16)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='304',descricao='PRODUTIVIDADE',ordenacao1=17)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='129',descricao='GRAT.DE TITULARIDADE',ordenacao1=18)
-    ProvDesc.objects.create(id_municipio=76,tipo='V',codigo='069',descricao='GRAT. RISCO DE VIDA',ordenacao1=19)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='900',descricao='INSS 14.00%',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='910',descricao='I R R F 27.50%',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='502',descricao='CONT.SINDICAL 001.00%',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='560',descricao='FALTAS D001',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='595',descricao='EMPR.CONS.BRADESCO',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='600',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='601',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='596',descricao='EMPR.CONS.BRADESCO',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='561',descricao='PENSAO ALIMENTI',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='501',descricao='CONTRIBUICAO APROFI 001.0',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='603',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='602',descricao='SEGURO DE VIDA',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='604',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='598',descricao='EMPR.CONSIGNAVEL BRA',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='605',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='606',descricao='EMPR.CONS. CAIXA',ordenacao1=0)
-    ProvDesc.objects.create(id_municipio=76,tipo='D',codigo='599',descricao='EMPR.CONSIGNAVEL BRA',ordenacao1=0)
-    '''
-    return render(request, 'app01/gravarCSVFolha.html',
-        {
-            'titulo_pagina': 'titulo',
-
-        }
-    )
-
-
 
 
 @login_required
@@ -481,41 +284,81 @@ def importacaoGeral(request):
     # e gravar no banco os departamentos/setores/funcionarios/cargos/vinculos,
     #  proventos e descontos.
     #-----------------------------------------------------------------------------
+    titulo_html = 'Inclusao de Deptos/Setores/Funcionarios'
+    municipios=Municipio.objects.all().order_by('municipio')
 
     if (request.method == "POST" and request.FILES['filename']):
-        #current_user = request.user.iduser
+
+        current_user = request.user.iduser
         file_zip=request.FILES['filename']
         id_municipio=int(request.POST['municipio'])
         ano=request.POST['ano']
         mes=request.POST['mes']
-        mes_extenso = funcoes_gerais.mesPorExtenso(mes)
-        referencia='FOLHA REF:'+mes_extenso+'/'+ano
-        anomes=ano+mes
+        anomes=int(ano+mes)
 
+        Folha.truncate()
+
+
+        '''
+        obj = Folha.objects.filter(id_municipio=id_municipio,anomes=anomes).first()
+        if obj is not None:
+            
+            mensagem='Essa Folha já foi importada!'
+            return render(request, 'app01/importacaoGeral.html',
+                    {
+                        'titulo': titulo_html,
+                        'municipios':municipios,
+                        'mensagem':mensagem
+                    }
+        '''
 
         municipio = Municipio.objects.get(id_municipio=id_municipio)
         modelo = municipio.modelo
         string_pesquisa = municipio.string_pesquisa
+
+
+        mes_extenso = funcoes_gerais.mesPorExtenso(mes,modelo)
+        if id_municipio==76:
+            referencia='FOLHA REF:'+mes_extenso+'/'+ano
+        elif id_municipio==86:
+            referencia='REF.:'+mes_extenso+' de '+ano
+
 
         if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
             if modelo==1:
                 leituraZip.importacaoGeral_modelo1(file_zip,id_municipio,anomes)
                 leituraZip.importacaoProventos_modelo1(file_zip,id_municipio,anomes)
                 leituraZip.importacaoFuncionario_modelo1(file_zip,id_municipio,anomes)
+            if modelo==2:
+                leituraZip.importacaoGeral_modelo2(file_zip,id_municipio,anomes)
+                leituraZip.importacaoProventos_modelo2(file_zip,id_municipio,anomes)
+                leituraZip.importacaoFuncionario_modelo2(file_zip,id_municipio,anomes)
+        else:
+            mensagem='Arquivo Zip não foi localizado!'
+            return render(request, 'app01/importacaoGeral.html',
+                    {
+                        'titulo': titulo_html,
+                        'municipios':municipios,
+                        'mensagem':mensagem
+                    }
+                  )
+
+
 
         return HttpResponseRedirect(reverse('app01:importacaoGeral'))
-    else:
-        titulo = 'Inclusao de Deptos/Setores/Funcionarios'
-        municipios = Municipio.objects.all().order_by('municipio')
     return render(request, 'app01/importacaoGeral.html',
             {
-                'titulo': titulo,
-                'municipios':municipios
+                'titulo': titulo_html,
+                'municipios':municipios,
+                'mensagem':''
             }
           )
 
-
+@login_required
 def gerandoFolha_modelo1(request):
+    titulo_html='Importação da Folha de Pagamento'
+    municipios = Municipio.objects.all().order_by('municipio')
+    mensagem=''
     if (request.method == "POST" and request.FILES['filename']):
         #current_user = request.user.iduser
         file_zip=request.FILES['filename']
@@ -524,8 +367,24 @@ def gerandoFolha_modelo1(request):
         mes=request.POST['mes']
         mes_extenso = funcoes_gerais.mesPorExtenso(mes)
         referencia='FOLHA REF:'+mes_extenso+'/'+ano
-        anomes=ano+mes
+        anomes=int(ano+mes)
 
+        Folha.truncate()
+
+        '''
+
+        obj = Folha.objects.filter(id_municipio=id_municipio,anomes=anomes).first()
+        if obj is not None:
+            
+            mensagem='Essa Folha já foi importada!'
+            return render(request, 'app01/lendozip.html',
+                    {
+                        'titulo': titulo_html,
+                        'municipios':municipios,
+                        'mensagem':mensagem
+                    }
+                  )
+        '''
 
         municipio = Municipio.objects.get(id_municipio=id_municipio)
         modelo = municipio.modelo
@@ -534,16 +393,22 @@ def gerandoFolha_modelo1(request):
         if leituraZip.valida_zip(file_zip,string_pesquisa,referencia)==1:
             if modelo==1:
                 leituraZip.gravarFolha_modelo1(file_zip,id_municipio,anomes)
-
+        else:
+            mensagem='O arquivo Zip não foi localizado!'
+            return render(request, 'app01/lendozip.html',
+                    {
+                        'titulo': titulo_html,
+                        'municipios':municipios,
+                        'mensagem':mensagem
+                    }
+                  )
 
         return HttpResponseRedirect(reverse('app01:lendozip'))
-        #return render(request, 'app01/teste.html')
-    else:
-        titulo = 'Importação da Folha de Pagamento'
-        municipios = Municipio.objects.all().order_by('municipio')
     return render(request, 'app01/lendozip.html',
             {
-                'titulo': titulo,
-                'municipios':municipios
+                'titulo': titulo_html,
+                'municipios':municipios,
+                'mensagem':mensagem
             }
           )
+

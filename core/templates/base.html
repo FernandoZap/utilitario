@@ -17,37 +17,32 @@
 <body>
 <div class="header">
 
+
 <ul class="menuH decor1">
-        <li><a href="{% url 'core:home'  %}">Inicio</a></li>
-        <li style="margin-left:70px;"><a class="arrow">1 Integração</a>
 
-        </li>
-        <li><a href="#" class="arrow">2 Importar Dados via Zip</a>
-            <ul>
 
-<li><a href="{% url 'app01:importacaoGeral' %}">2.1 Atualizar Dados</a></li>
-<li><a href="{% url 'app01:lendozip' %}">2.2 Importar Folha de Pagamento</a></li>
-<li><a href="{% url 'app01:gravarCSVFolha' %}">2.3 Imprimir Folha em Excel</a></li>
+<li><a href="#" class="arrow">1 Gerar Excel</a>
+<ul>
+<li><a href="{% url 'app01:importacaoGeral' %}">1.1 Atualizar Dados</a></li>
+<li><a href="{% url 'app01:lendozip' %}">1.2 Importar Folha de Pagamento</a></li>
+<li><a href="{% url 'app01:gravarCSVFolha' %}">1.3 Imprimir Folha em Excel</a></li>
 
             </ul>
         </li>
 
-        <li><a href="#" class="arrow">3 Diversos</a>
+        <li><a href="#" class="arrow">2 Diversos</a>
+
             <ul>
-            <li><a href="{% url 'app01:deptoList' %}">3.1 Listar Departamentos</a></li>
-            <li><a href="{% url 'app01:listFolhaResumo' %}">3.2 Listar Soma da Folha</a></li>            
+            <li><a href="{% url 'app01:deptoList' %}">2.1 Listar Departamentos</a></li>
+            <li><a href="{% url 'app01:listFolhaResumo' %}">2.2 Listar Soma da Folha</a></li>            
             </ul>
-        </li>
-
-
-        <li><a href="#" class="arrow">4 Layout's</a>
         </li>
 
         
         {% if user.is_authenticated %}
-         <li><a href="{% url 'accounts:logout'  %}">5. Sair</a>
+         <li><a href="{% url 'accounts:logout'  %}">3. Sair</a>
          {% else %}
-         <li><a href="{% url 'accounts:login'  %}">5. Login</a>
+         <li><a href="{% url 'accounts:login'  %}">3. Login</a>
          {% endif %}
         <!--
         <li><a href="#3" class="arrow">3. Login</a>

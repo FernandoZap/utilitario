@@ -74,13 +74,17 @@ def searchProvDesc(id_municipio,tipo,codigo,descricao,incluir):
     return id_provdesc
 
 
-def mesPorExtenso(mes):
-    if int(mes)==1:
-        return 'JANEIRO'
-    elif int(mes)==2:
-        return 'FEVEREIRO'
-    elif int(mes)==11:
-        return 'NOVEMBRO'
+def mesPorExtenso(mes,modelo):
+
+    lista_mes=['','JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO']
+    if modelo==1:
+        return lista_mes[int(mes)]
+    elif modelo==2:
+        return (lista_mes[int(mes)])[0:3]
+
+
+
+
 
 
 
@@ -130,9 +134,8 @@ def proventosFuncionario(id_municipio,anomes,id_funcionario):
 
 
 def cabecalhoFolha(id_municipio):
-    lista=['Departamento','Setor','Codigo','Nome','Cargo','Vinculo']
+    lista=['Departamento','Setor','Codigo','Nome','Cargo','Vinculo','DataAdmissao','CargaHorario']
     objs=ProvDesc.objects.filter(id_municipio=id_municipio,tipo='V').order_by('ordenacao1')
     for obj in objs:
         lista.append(obj.descricao)
     return lista
-
