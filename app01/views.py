@@ -284,8 +284,9 @@ def importacaoGeral(request):
     # e gravar no banco os departamentos/setores/funcionarios/cargos/vinculos,
     #  proventos e descontos.
     #-----------------------------------------------------------------------------
-    titulo_html = 'Inclusao de Deptos/Setores/Funcionarios'
+    titulo_html = 'Atualizar Informaçoes de Funcionarios - Atenção: informe apenas arquivo .zip'
     municipios=Municipio.objects.all().order_by('municipio')
+    mensagem=''
 
     if (request.method == "POST" and request.FILES['filename']):
 
@@ -333,6 +334,7 @@ def importacaoGeral(request):
                 leituraZip.importacaoGeral_modelo2(file_zip,id_municipio,anomes)
                 leituraZip.importacaoProventos_modelo2(file_zip,id_municipio,anomes)
                 leituraZip.importacaoFuncionario_modelo2(file_zip,id_municipio,anomes)
+            mensagem='Processo Concluido'
         else:
             mensagem='Arquivo Zip não foi localizado!'
             return render(request, 'app01/importacaoGeral.html',
@@ -344,19 +346,17 @@ def importacaoGeral(request):
                   )
 
 
-
-        return HttpResponseRedirect(reverse('app01:importacaoGeral'))
     return render(request, 'app01/importacaoGeral.html',
             {
                 'titulo': titulo_html,
                 'municipios':municipios,
-                'mensagem':''
+                'mensagem':mensagem
             }
           )
 
 @login_required
 def gerandoFolha_modelo1(request):
-    titulo_html='Importação da Folha de Pagamento'
+    titulo_html='Importação da Folha de Pagamento - Atenção: informe apenas arquivo .zip'
     municipios = Municipio.objects.all().order_by('municipio')
     mensagem=''
     if (request.method == "POST" and request.FILES['filename']):
